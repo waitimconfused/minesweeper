@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Minesweeper</title>
+	<link rel="stylesheet" href="./style.css">
+	<link rel="shortcut icon" href="./assets/favicon.svg" type="image/svg">
+</head>
+<body>
+
+	<canvas id="screen"></canvas>
+
+	<div id="info">
+		<label><img src="./assets/flag.svg" alt="Flags used:"><span id="flags-used">0</span>/<span id="flag-count">0</span></label>
+		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="total-tiles">0</span></label>
+	</div>
+
+	<div id="gameover">
+		<h1>Game Over!</h1>
+		<p>You were ~<span id="score">0</span>% complete!</p>
+		<button resetbutton>Play again</button>
+	</div>
+
+	<div id="win">
+		<h1>You win!</h1>
+		<p>You found all the bombs!</p>
+		<button nextbutton>Play again?</button>
+	</div>
+
+	<div id="high-score" style="display: none;">
+		<h1>High Score!</h1>
+		<p id="high-score-subtitle">You just beat __x__!</p>
+	</div>
+	
+	<script src="./various.js"></script>
+	<script src="./map.js"></script>
+	<script src="./mouse.js"></script>
+	<script src="./index.js"></script>
+</body>
+</html>

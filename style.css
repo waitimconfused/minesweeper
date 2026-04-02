@@ -48,6 +48,7 @@ body {
 	transition: opacity, filter;
 	transition-duration: 300ms;
 	transition-timing-function: cubic-bezier(0.5,0,0,1);
+	pointer-events: none;
 
 	opacity: 0.75;
 	
@@ -55,6 +56,17 @@ body {
 		opacity: 0.25;
 		filter: blur(3px);
 	}
+}
+
+#info label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-items: center;
+}
+
+#info label img {
+	margin-right: 8px;
 }
 
 body > :not(#screen):not(#high-score) {

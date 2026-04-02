@@ -1,12 +1,20 @@
-const html = {
+import camera from "./camera.js";
+
+export const html = {
 	flag_count: document.getElementById("flag-count"),
 	flags_used: document.getElementById("flags-used"),
 
 	tile_count: document.getElementById("tile-count"),
 	tiles_shown: document.getElementById("tiles-shown"),
 
-	gameover: document.getElementById("gameover"),
-	gameover_score: document.getElementById("score")
+	gameoverScreen: document.getElementById("gameover"),
+	gameoverScreen_score: document.getElementById("score"),
+
+	winScreen: document.getElementById("win"),
+
+
+	reset: document.getElementById("reset"),
+	playAgain: document.getElementById("again")
 };
 
 export default {
@@ -29,8 +37,7 @@ export default {
 	/** @type {?OffscreenCanvasRenderingContext2D} */
 	context: null,
 
-	/** @type {"play"|"stop"} */
-	state: "stop",
+	isPlaying: false,
 
 	styles: {
 		
@@ -70,9 +77,12 @@ export default {
 
 		this.bombIndexes = [];
 
-		html.gameover.removeAttribute("show");
+		html.gameoverScreen.removeAttribute("show");
+		html.winScreen.removeAttribute("show");
 		
-		this.canvas = new OffscreenCanvas(width*this.scale, height*this.scale);
+		this.canvas = document.createElement("canvas");
+		this.canvas.width = width*this.scale;
+		this.canvas.height = height*this.scale;
 		this.context = this.canvas.getContext("2d");
 		
 		let bombCount = Math.floor(this.width * this.height / 4);
@@ -87,9 +97,15 @@ export default {
 			this.bombTileIndexes[i] = randomIndex;
 		}
 
+		html.tile_count.innerText = this.tiles.length - bombCount;
+
 		this.drawMap();
 
-		this.state = "play";
+		this.isPlaying = true;
+		camera.zoom = 1;
+		camera.x = (this.width * this.scale) / -2;
+		camera.y = (this.height * this.scale) / -2;
+		camera.enabled = true;
 
 	},
 
@@ -165,7 +181,7 @@ export default {
 	 */
 	exploreTile(x, y) {
 
-		if (this.state != "play") return;
+		if (this.isPlaying == false) return;
 
 		if (y < 0) return;
 		if (x < 0) return;
@@ -186,11 +202,13 @@ export default {
 
 			this.drawTile(x, y);
 
-			html.gameover_score.innerText = "~"+(this.tilesDiscovered / this.tiles.length * 10).toFixed(3)+"%";
+			html.gameoverScreen_score.innerText = "~"+(this.tilesDiscovered / this.tiles.length * 10).toFixed(3)+"%";
 
-			html.gameover.setAttribute("show", "true");
+			html.gameoverScreen.setAttribute("show", "true");
+			html.reset.focus();
 
-			this.state = "stop";
+			this.isPlaying = false;
+			camera.enabled = false;
 
 			return;
 
@@ -228,11 +246,14 @@ export default {
 		this.tiles[index] = sumOfBombs;
 
 		this.tilesDiscovered += 1;
+		html.tiles_shown.innerText = this.tilesDiscovered;
 
 		// If the map is now solved
-		// if (this.tilesDiscovered == this.width * this.height - this.bombCount) {
-		// 	return;
-		// }
+		if (this.tilesDiscovered == this.width * this.height - this.bombCount) {
+			html.winScreen.setAttribute("show", "true");
+			html.playAgain.focus();
+			return;
+		}
 		
 		if (sumOfBombs == 0) {
 			if (this.getTileFromPos(x,   y-1) == undefined) this.exploreTile(x,   y-1);

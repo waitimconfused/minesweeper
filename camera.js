@@ -1,4 +1,8 @@
+import map from "./map.js";
+
 const camera = {
+	
+	enabled: false,
 
 	x: 0,
 	y: 0,
@@ -69,6 +73,9 @@ document.addEventListener("wheel", scrollEventCallback, {passive:false});
 document.addEventListener("keydown", scrollEventCallback);
 
 function scrollEventCallback(e) {
+
+	if (camera.enabled == false) return;
+
 	if (e instanceof WheelEvent) {
 		if (e.ctrlKey) {
 			e.preventDefault();
@@ -112,7 +119,6 @@ function scrollEventCallback(e) {
 
 document.addEventListener("keydown", (e) => {
 	if (e.repeat) return;
-
 	camera.buttons.ctrl = e.ctrlKey;
 	camera.buttons.shift = e.shiftKey;
 	camera.buttons.alt = e.altKey;

@@ -1,4 +1,4 @@
-import map from "./map.js";
+import { default as map, html } from "./map.js";
 import camera from "./camera.js";
 
 map.styles.colour.unchecked = [ "#A2D149", "#AAD751" ];
@@ -17,14 +17,11 @@ const canvas = document.getElementById("screen");
 /** @type {CanvasRenderingContext2D} */
 const context = canvas.getContext("2d");
 
-const resetButton = document.getElementById("reset");
+const playAgainButton = document.getElementById("again");
 
 
 map.scale = 100;
-// map.reset(20, 20);
-map.reset(50, 50);
-camera.x = (map.width * map.scale) / -2;
-camera.y = (map.height * map.scale) / -2;
+map.reset(16, 16);
 
 var cursorTransformation;
 
@@ -36,6 +33,31 @@ function tick() {
 	if (canvas.height != window.innerHeight) {
 		canvas.height = window.innerHeight;
 	}
+
+	if (map.isPlaying == false) {
+
+		let targetZoom = Math.min(
+			(window.innerHeight-100) / (map.height * map.scale),
+			(window.innerWidth-100) / (map.width * map.scale)
+		);
+		let targetX = (map.width * map.scale) / -2;
+		let targetY = (map.height * map.scale) / -2;
+
+		if (
+			camera.enabled == false &&
+			camera.zoom < targetZoom + 0.001 &&
+			Math.abs(camera.x) < Math.abs(targetX) + 0.001 &&
+			Math.abs(camera.y) < Math.abs(targetY) + 0.001
+		) {
+			camera.enabled = true;
+		} else {
+			let factor = 1/16;
+			camera.zoom = camera.zoom + ( targetZoom - camera.zoom ) * factor;
+			camera.x = Math.round(camera.x + ( targetX - camera.x ) * factor);
+			camera.y = Math.round(camera.y + ( targetY - camera.y ) * factor);
+		}
+
+	}
 	
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	
@@ -46,7 +68,7 @@ function tick() {
 
 	context.drawImage(map.canvas, 0, 0);
 
-	if (map.state == "play") drawCursor();
+	if (map.isPlaying) drawCursor();
 	
 	context.restore();
 
@@ -68,19 +90,21 @@ function drawCursor() {
 		y: Math.floor( point.y / map.scale)
 	};
 
-	let cursorOffset = Math.sin( performance.now() / 1000 ) * 10;
-
 	context.strokeStyle = "white";
 	context.lineWidth = map.scale / 20;
 	context.globalAlpha = 0.5;
 
+	context.setLineDash([20, 20]);
+	context.lineDashOffset = performance.now() / 100;
+	context.lineCap = "round";
+	context.lineJoin = "round";
+
 	context.beginPath();
-	context.roundRect(
-		point.x*map.scale - cursorOffset/2,
-		point.y*map.scale - cursorOffset/2,
-		map.scale + cursorOffset,
-		map.scale + cursorOffset,
-		map.scale / 20
+	context.rect(
+		point.x*map.scale,
+		point.y*map.scale,
+		map.scale,
+		map.scale
 	);
 	context.closePath();
 
@@ -92,7 +116,9 @@ function drawCursor() {
 
 document.addEventListener("click", (e) => {
 
-	if (map.state != "play") return;
+	if (canvas.matches(":hover") == false) return;
+
+	if (map.isPlaying == false) return;
 
 	let point = new DOMPoint(camera.mouse.x, camera.mouse.y);
 	point = point.matrixTransform(cursorTransformation);
@@ -132,6 +158,8 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("contextmenu", (e) => {
 
+	if (canvas.matches(":hover") == false) return;
+
 	let point = new DOMPoint(camera.mouse.x, camera.mouse.y);
 	point = point.matrixTransform(cursorTransformation);
 	
@@ -145,8 +173,12 @@ document.addEventListener("contextmenu", (e) => {
 });
 
 
-resetButton.addEventListener("click", () => {
+html.reset.addEventListener("click", () => {
 	camera.x = (map.width * map.scale) / -2;
 	camera.y = (map.height * map.scale) / -2;
+	map.reset( map.width, map.height );
+});
+
+playAgainButton.addEventListener("click", () => {
 	map.reset( map.width, map.height );
 });

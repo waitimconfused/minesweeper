@@ -69,12 +69,6 @@ export default {
 		this.tilesDiscovered = 0;
 		this.flagsUsed = 0;
 
-		html.flags_used.innerText = "0";
-		html.flag_count = "?";
-
-		html.flags_used.innerText = "0";
-		html.flag_count = "?";
-
 		this.bombIndexes = [];
 
 		html.gameoverScreen.removeAttribute("show");
@@ -97,7 +91,10 @@ export default {
 			this.bombTileIndexes[i] = randomIndex;
 		}
 
-		html.tile_count.innerText = this.tiles.length - bombCount;
+		html.tile_count.innerText = "?";
+		html.tiles_shown.innerText = "0";
+		html.flag_count.innerText = "?";
+		html.flags_used.innerText = "0";
 
 		this.drawMap();
 

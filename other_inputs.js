@@ -4,11 +4,29 @@ import map from "./map.js";
 const reset = document.getElementById("reset");
 const playAgain = document.getElementById("again");
 
+const canvas = document.getElementById("screen");
+
 function glideCameraByBlockOffset(x, y, c=1) {
 	if (c >= 5) return;
 	camera.x -= x * map.scale / 4;
 	camera.y -= y * map.scale / 4;
 	setTimeout(()=>glideCameraByBlockOffset(x,y,c+1), 20);
+}
+
+function glideCameraByZoom(z, c=1) {
+	if (c >= 5) return;
+	camera.zoom += z / 4;
+	
+	let minZoom = Math.min(
+		(window.innerHeight-100) / (map.height * map.scale),
+		(window.innerWidth-100) / (map.width * map.scale)
+	);
+	let maxZoom = 1;
+	
+	camera.zoom = Math.min(camera.zoom, maxZoom);
+	camera.zoom = Math.max(camera.zoom, minZoom);
+
+	setTimeout(()=>glideCameraByZoom(z, c+1), 20);
 }
 
 reset.addEventListener("keydown", (e) => {
@@ -31,7 +49,8 @@ reset.addEventListener("keydown", (e) => {
 
 document.addEventListener("keydown", (e) => {
 
-	if (camera.enabled == false) return;
+	if (map.isPlaying == false) return;
+	if (canvas.matches(":hover") == false) return;
 	
 	if (e.repeat) return;
 
@@ -85,6 +104,14 @@ document.addEventListener("keydown", (e) => {
 		
 		case "m":
 			document.dispatchEvent( new Event("contextmenu") );
+			break;
+
+		case "j":
+			glideCameraByZoom(-0.25);
+			break;
+		
+		case "k":
+			glideCameraByZoom(0.25);
 			break;
 	
 		default:

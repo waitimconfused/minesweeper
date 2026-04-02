@@ -149,7 +149,8 @@ document.addEventListener("click", (e) => {
 			}
 
 		}
-
+		html.tile_count.innerText = map.tiles.length - map.bombTileIndexes.length;
+		html.flag_count.innerText = map.bombTileIndexes.length;
 	}
 
 	map.exploreTile(point.x, point.y);

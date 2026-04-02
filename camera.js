@@ -1,6 +1,13 @@
-var mouse = {
+const camera = {
+
 	x: 0,
 	y: 0,
+	zoom: 1,
+
+	mouse: {
+		x: 0,
+		y: 0,
+	},
 
 	buttons: {
 		left: false,
@@ -16,8 +23,8 @@ var mouse = {
 };
 
 document.addEventListener("pointermove", (e) => {
-	mouse.x = (e.clientX - SCREEN.width/2) / viewport.zoom  - viewport.x;
-	mouse.y = (e.clientY - SCREEN.height/2) / viewport.zoom - viewport.y;
+	camera.mouse.x = e.clientX;
+	camera.mouse.y = e.clientY;
 });
 
 document.addEventListener("pointerdown", (e) => {
@@ -25,8 +32,11 @@ document.addEventListener("pointerdown", (e) => {
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
-		mouse.buttons[buttonName] = isPressed;
+		camera.buttons[buttonName] = isPressed;
 	}
+
+	camera.mouse.x = e.clientX;
+	camera.mouse.y = e.clientY;
 });
 document.addEventListener("pointerup", (e) => {
 
@@ -34,13 +44,25 @@ document.addEventListener("pointerup", (e) => {
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
-		mouse.buttons[buttonName] = isPressed;
+		camera.buttons[buttonName] = isPressed;
 	}
+
+	camera.mouse.x = e.clientX;
+	camera.mouse.y = e.clientY;
 });
 
 document.addEventListener("contextmenu", (e) => {
 	e.preventDefault();
-})
+});
+
+document.addEventListener("scroll", (e) => {
+	let mouseButtonNames = ["left", "right", "wheel", "back", "forward", "eraser"];
+
+	for (let buttonName of mouseButtonNames) {
+		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
+		camera.buttons[buttonName] = isPressed;
+	}
+});
 
 
 document.addEventListener("wheel", scrollEventCallback, {passive:false});
@@ -52,12 +74,12 @@ function scrollEventCallback(e) {
 			e.preventDefault();
 			// if (PROJECT.options.canZoom == false) return;
 
-			viewport.zoom -= e.deltaY * viewport.zoom / 200;
+			camera.zoom -= e.deltaY * camera.zoom / 200;
 		} else {
 			e.preventDefault();
 			// if (PROJECT.options.canPan == false) return;
-			viewport.x += e.deltaX / viewport.zoom;
-			viewport.y += e.deltaY / viewport.zoom;
+			camera.x += e.deltaX / camera.zoom;
+			camera.y += e.deltaY / camera.zoom;
 		}
 	} else if (e instanceof KeyboardEvent) {
 		if (!e.ctrlKey) return;
@@ -72,20 +94,18 @@ function scrollEventCallback(e) {
 		if (e.repeat) return;
 		// if (PROJECT.options.canZoom == false) return;
 
-		viewport.zoom += scale;
+		camera.zoom += scale;
 		if (e.key == "0") {
-			viewport.zoom = 1;
-			// viewport.x = 0;
-			// viewport.y = 0;
+			camera.zoom = 1;
+			// camera.x = 0;
+			// camera.y = 0;
 		}
 	} else {
 		throw new Error("The function scrollEventCallback requires a parameter of type WheelEvent or KeyboardEvent");
 	}
 
-	viewport.zoom = Math.min(viewport.zoom, 1);
+	camera.zoom = Math.min(camera.zoom, 1);
 
-	mouse.x = (e.clientX - SCREEN.width/2) / viewport.zoom  - viewport.x;
-	mouse.y = (e.clientY - SCREEN.height/2) / viewport.zoom - viewport.y;
 }
 
 
@@ -93,17 +113,20 @@ function scrollEventCallback(e) {
 document.addEventListener("keydown", (e) => {
 	if (e.repeat) return;
 
-	mouse.buttons.ctrl = e.ctrlKey;
-	mouse.buttons.shift = e.shiftKey;
-	mouse.buttons.alt = e.altKey;
+	camera.buttons.ctrl = e.ctrlKey;
+	camera.buttons.shift = e.shiftKey;
+	camera.buttons.alt = e.altKey;
 
 });
 
 document.addEventListener("keyup", (e) => {
 	if (e.repeat) return;
 
-	mouse.buttons.ctrl = e.ctrlKey;
-	mouse.buttons.shift = e.shiftKey;
-	mouse.buttons.alt = e.altKey;
+	camera.buttons.ctrl = e.ctrlKey;
+	camera.buttons.shift = e.shiftKey;
+	camera.buttons.alt = e.altKey;
 
 });
+
+
+export default camera;

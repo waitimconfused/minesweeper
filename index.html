@@ -13,13 +13,13 @@
 
 	<div id="info">
 		<label><img src="./assets/flag.svg" alt="Flags used:"><span id="flags-used">0</span>/<span id="flag-count">0</span></label>
-		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="total-tiles">0</span></label>
+		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="tile-count">0</span></label>
 	</div>
 
 	<div id="gameover">
 		<h1>Game Over!</h1>
-		<p>You were ~<span id="score">0</span>% complete!</p>
-		<button resetbutton>Play again</button>
+		<p>You were <code id="score">~0%</code> complete!</p>
+		<button id="reset">Play again</button>
 	</div>
 
 	<div id="win">
@@ -33,9 +33,6 @@
 		<p id="high-score-subtitle">You just beat __x__!</p>
 	</div>
 	
-	<script src="./various.js"></script>
-	<script src="./map.js"></script>
-	<script src="./mouse.js"></script>
-	<script src="./index.js"></script>
+	<script src="./index.js" type="module"></script>
 </body>
 </html>

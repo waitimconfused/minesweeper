@@ -69,7 +69,7 @@ body {
 	margin-right: 8px;
 }
 
-body > :not(#screen):not(#high-score) {
+div {
 	background-color: #00000071;
 	/* backdrop-filter: blur(10px) brightness(200%) hue-rotate(60deg); */
 	padding: 1rem 2rem;

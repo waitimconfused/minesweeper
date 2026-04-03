@@ -187,6 +187,10 @@ export default {
 		
 		let index = y * this.width + x;
 		
+		if (this.tiles[index] == undefined) this.tilesDiscovered += 1;
+		
+		this.checkForWin();
+		
 		// If the tile is a flag
 		if ( this.tiles[index] == "Flag" ) return;
 
@@ -199,7 +203,7 @@ export default {
 
 			this.drawTile(x, y);
 
-			html.gameoverScreen_score.innerText = "~"+(this.tilesDiscovered / this.tiles.length * 10).toFixed(3)+"%";
+			html.gameoverScreen_score.innerText = "~"+(this.tilesDiscovered / this.tiles.length * 100).toFixed(3)+"%";
 
 			html.gameoverScreen.setAttribute("show", "true");
 			html.reset.focus();
@@ -242,15 +246,8 @@ export default {
 
 		this.tiles[index] = sumOfBombs;
 
-		this.tilesDiscovered += 1;
 		html.tiles_shown.innerText = this.tilesDiscovered;
 
-		// If the map is now solved
-		if (this.tilesDiscovered == this.width * this.height - this.bombCount) {
-			html.winScreen.setAttribute("show", "true");
-			html.playAgain.focus();
-			return;
-		}
 		
 		if (sumOfBombs == 0) {
 			if (this.getTileFromPos(x,   y-1) == undefined) this.exploreTile(x,   y-1);
@@ -298,6 +295,9 @@ export default {
 			this.flagsUsed -= 1;
 		}
 
+		html.flags_used.innerText = this.flagsUsed;
+		this.checkForWin();
+
 		this.drawTile(x, y);
 		
 	},
@@ -319,6 +319,13 @@ export default {
 		}
 
 		return this.tiles[index];
-	}
+	},
+
+	checkForWin() {
+		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return;
+		
+		html.winScreen.setAttribute("show", "true");
+		html.playAgain.focus();
+	},
 
 };

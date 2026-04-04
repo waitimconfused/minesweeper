@@ -13,29 +13,22 @@
 
 	<div id="info">
 		<label><img src="./assets/flag.svg" alt="Flags used:"><span id="flags-used">0</span>/<span id="flag-count">0</span></label>
-		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="total-tiles">0</span></label>
+		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="tile-count">0</span></label>
 	</div>
 
 	<div id="gameover">
 		<h1>Game Over!</h1>
-		<p>You were ~<span id="score">0</span>% complete!</p>
-		<button resetbutton>Play again</button>
+		<p>You were <code id="score">~0%</code> complete!</p>
+		<button id="reset">Play again</button>
 	</div>
 
 	<div id="win">
 		<h1>You win!</h1>
 		<p>You found all the bombs!</p>
-		<button nextbutton>Play again?</button>
-	</div>
-
-	<div id="high-score" style="display: none;">
-		<h1>High Score!</h1>
-		<p id="high-score-subtitle">You just beat __x__!</p>
+		<button id="again">Play again?</button>
 	</div>
 	
-	<script src="./various.js"></script>
-	<script src="./map.js"></script>
-	<script src="./mouse.js"></script>
-	<script src="./index.js"></script>
+	<script src="./index.js" type="module"></script>
+	<script src="./other_inputs.js" type="module" ></script>
 </body>
 </html>

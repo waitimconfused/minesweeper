@@ -48,6 +48,7 @@ body {
 	transition: opacity, filter;
 	transition-duration: 300ms;
 	transition-timing-function: cubic-bezier(0.5,0,0,1);
+	pointer-events: none;
 
 	opacity: 0.75;
 	
@@ -57,7 +58,18 @@ body {
 	}
 }
 
-body > :not(#screen):not(#high-score) {
+#info label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-items: center;
+}
+
+#info label img {
+	margin-right: 8px;
+}
+
+div {
 	background-color: #00000071;
 	/* backdrop-filter: blur(10px) brightness(200%) hue-rotate(60deg); */
 	padding: 1rem 2rem;

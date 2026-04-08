@@ -322,10 +322,14 @@ export default {
 	},
 
 	checkForWin() {
+		if ( this.isPlaying == false ) return;
 		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return;
 		
 		html.winScreen.setAttribute("show", "true");
 		html.playAgain.focus();
+
+		this.isPlaying = false;
+		camera.enabled = false;
 	},
 
 };

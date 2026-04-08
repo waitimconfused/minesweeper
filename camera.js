@@ -4,6 +4,9 @@ const camera = {
 	
 	enabled: false,
 
+	/** @type { "mouse" | "keyboard" } */
+	inputMethod: "mouse",
+
 	x: 0,
 	y: 0,
 	zoom: 1,
@@ -29,6 +32,7 @@ const camera = {
 document.addEventListener("pointermove", (e) => {
 	camera.mouse.x = e.clientX;
 	camera.mouse.y = e.clientY;
+	camera.inputMethod = "mouse";
 });
 
 document.addEventListener("pointerdown", (e) => {
@@ -39,6 +43,7 @@ document.addEventListener("pointerdown", (e) => {
 		camera.buttons[buttonName] = isPressed;
 	}
 
+	if (camera.inputMethod != "mouse") return;
 	camera.mouse.x = e.clientX;
 	camera.mouse.y = e.clientY;
 });
@@ -51,6 +56,7 @@ document.addEventListener("pointerup", (e) => {
 		camera.buttons[buttonName] = isPressed;
 	}
 
+	if (camera.inputMethod != "mouse") return;
 	camera.mouse.x = e.clientX;
 	camera.mouse.y = e.clientY;
 });

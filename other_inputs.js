@@ -1,4 +1,5 @@
 import camera from "./camera.js";
+import { click } from "./index.js";
 import map from "./map.js";
 
 const reset = document.getElementById("reset");
@@ -48,6 +49,8 @@ reset.addEventListener("keydown", (e) => {
 
 
 document.addEventListener("keydown", (e) => {
+
+	camera.inputMethod = "keyboard";
 
 	if (map.isPlaying == false) return;
 	if (canvas.matches(":hover") == false) return;
@@ -99,11 +102,11 @@ document.addEventListener("keydown", (e) => {
 			break;
 
 		case "n":
-			document.dispatchEvent( new Event("click") );
+			click("reveal");
 			break;
 		
 		case "m":
-			document.dispatchEvent( new Event("contextmenu") );
+			click("flag");
 			break;
 
 		case "j":

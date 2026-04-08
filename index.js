@@ -113,11 +113,13 @@ function drawCursor() {
 	context.globalAlpha = 1;
 }
 
-
-document.addEventListener("click", (e) => {
-
+/**
+ * @param {"reveal"|"flag"} type
+ */
+export function click(type) {
+	
 	if (canvas.matches(":hover") == false) return;
-
+	
 	if (map.isPlaying == false) return;
 
 	let point = new DOMPoint(camera.mouse.x, camera.mouse.y);
@@ -128,48 +130,53 @@ document.addEventListener("click", (e) => {
 		y: Math.floor( point.y / map.scale)
 	};
 
-	if ( map.tilesDiscovered == 0 ) {
-		
-		let clearSize = 3;
+	if (type == "reveal") {
 
-		for (let y = 0; y < clearSize; y ++) {
+		if ( map.tilesDiscovered == 0 ) {
 
-			for (let x = 0; x < clearSize; x ++) {
+			let clearSize = 3;
 
-				let position = {
-					x: point.x - Math.floor(clearSize/2) + x,
-					y: point.y - Math.floor(clearSize/2) + y
+			for (let y = 0; y < clearSize; y ++) {
+
+				for (let x = 0; x < clearSize; x ++) {
+
+					let position = {
+						x: point.x - Math.floor(clearSize/2) + x,
+						y: point.y - Math.floor(clearSize/2) + y
+					}
+
+					let tileIndex = position.y * map.width + position.x;
+					let bombIndex = map.bombTileIndexes.indexOf(tileIndex);
+
+					map.bombTileIndexes.splice(bombIndex, 1);
+
 				}
 
-				let tileIndex = position.y * map.width + position.x;
-				let bombIndex = map.bombTileIndexes.indexOf(tileIndex);
-
-				map.bombTileIndexes.splice(bombIndex, 1);
-
 			}
-
+			html.tile_count.innerText = map.tiles.length - map.bombTileIndexes.length;
+			html.flag_count.innerText = map.bombTileIndexes.length;
 		}
-		html.tile_count.innerText = map.tiles.length - map.bombTileIndexes.length;
-		html.flag_count.innerText = map.bombTileIndexes.length;
+		
+		map.exploreTile(point.x, point.y);
+
+	} else {
+		map.toggleFlag(point.x, point.y);
 	}
+	
+}
 
-	map.exploreTile(point.x, point.y);
+document.addEventListener("click", (e) => {
+	
+	if (camera.inputMethod != "mouse") return;
 
+	click("reveal");
 });
 
 document.addEventListener("contextmenu", (e) => {
-
-	if (canvas.matches(":hover") == false) return;
-
-	let point = new DOMPoint(camera.mouse.x, camera.mouse.y);
-	point = point.matrixTransform(cursorTransformation);
 	
-	point = {
-		x: Math.floor( point.x / map.scale),
-		y: Math.floor( point.y / map.scale)
-	};
+	if (camera.inputMethod != "mouse") return;
 
-	map.toggleFlag(point.x, point.y);
+	click("flag");
 
 });
 

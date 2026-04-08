@@ -80,17 +80,15 @@ document.addEventListener("keydown", scrollEventCallback);
 
 function scrollEventCallback(e) {
 
+	if (e instanceof WheelEvent && e.ctrlKey) e.preventDefault();
+
 	if (camera.enabled == false) return;
 
 	if (e instanceof WheelEvent) {
+		e.preventDefault();
 		if (e.ctrlKey) {
-			e.preventDefault();
-			// if (PROJECT.options.canZoom == false) return;
-
 			camera.zoom -= e.deltaY * camera.zoom / 200;
 		} else {
-			e.preventDefault();
-			// if (PROJECT.options.canPan == false) return;
 			camera.x += e.deltaX / camera.zoom;
 			camera.y += e.deltaY / camera.zoom;
 		}
@@ -105,14 +103,9 @@ function scrollEventCallback(e) {
 
 		if (scale != null) e.preventDefault(); else return;
 		if (e.repeat) return;
-		// if (PROJECT.options.canZoom == false) return;
 
 		camera.zoom += scale;
-		if (e.key == "0") {
-			camera.zoom = 1;
-			// camera.x = 0;
-			// camera.y = 0;
-		}
+		if (e.key == "0") camera.zoom = 1;
 	} else {
 		throw new Error("The function scrollEventCallback requires a parameter of type WheelEvent or KeyboardEvent");
 	}

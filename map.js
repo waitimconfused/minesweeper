@@ -173,12 +173,13 @@ export default {
 
 
 	/**
-	 * @param {number} x 
-	 * @param {number} y 
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {?boolean} forceUpdate
 	 */
-	exploreTile(x, y) {
+	exploreTile(x, y, forceUpdate=false) {
 
-		if (this.isPlaying == false) return;
+		if (this.isPlaying == false && forceUpdate == false) return;
 
 		if (y < 0) return;
 		if (x < 0) return;
@@ -250,23 +251,31 @@ export default {
 
 		
 		if (sumOfBombs == 0) {
-			if (this.getTileFromPos(x,   y-1) == undefined) this.exploreTile(x,   y-1);
-			if (this.getTileFromPos(x+1, y-1) == undefined) this.exploreTile(x+1, y-1);
-			if (this.getTileFromPos(x+1, y)   == undefined) this.exploreTile(x+1, y);
-			if (this.getTileFromPos(x+1, y+1) == undefined) this.exploreTile(x+1, y+1);
-			if (this.getTileFromPos(x,   y+1) == undefined) this.exploreTile(x,   y+1);
-			if (this.getTileFromPos(x-1, y+1) == undefined) this.exploreTile(x-1, y+1);
-			if (this.getTileFromPos(x-1, y)   == undefined) this.exploreTile(x-1, y);
-			if (this.getTileFromPos(x-1, y-1) == undefined) this.exploreTile(x-1, y-1);
+
+			for (let i = 0; i < neighbourIndexes.length; i ++) {
+				let index = neighbourIndexes[i];
+				let tile = this.tiles[index];
+
+				if (tile != undefined) continue;
+
+				let y = Math.floor( index / this.width );
+				let x = index % this.width;
+
+				this.exploreTile(x, y, true);
+			}
 		} else if (sumOfBombs == sumOfFlags) {
-			if (this.getTileFromPos(x,   y-1) == undefined) this.exploreTile(x,   y-1);
-			if (this.getTileFromPos(x+1, y-1) == undefined) this.exploreTile(x+1, y-1);
-			if (this.getTileFromPos(x+1, y)   == undefined) this.exploreTile(x+1, y);
-			if (this.getTileFromPos(x+1, y+1) == undefined) this.exploreTile(x+1, y+1);
-			if (this.getTileFromPos(x,   y+1) == undefined) this.exploreTile(x,   y+1);
-			if (this.getTileFromPos(x-1, y+1) == undefined) this.exploreTile(x-1, y+1);
-			if (this.getTileFromPos(x-1, y)   == undefined) this.exploreTile(x-1, y);
-			if (this.getTileFromPos(x-1, y-1) == undefined) this.exploreTile(x-1, y-1);
+			
+			for (let i = 0; i < neighbourIndexes.length; i ++) {
+				let index = neighbourIndexes[i];
+				let tile = this.tiles[index];
+
+				if (tile != undefined) continue;
+
+				let y = Math.floor( index / this.width );
+				let x = index % this.width;
+
+				this.exploreTile(x, y, true);
+			}
 		}
 
 		this.drawTile(x, y);

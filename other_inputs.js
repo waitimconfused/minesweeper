@@ -30,9 +30,11 @@ function glideCameraByZoom(z, c=1) {
 	setTimeout(()=>glideCameraByZoom(z, c+1), 20);
 }
 
-reset.addEventListener("keydown", (e) => {
+/** @param {KeyboardEvent} e */
+function button_keydown(e) {
+	
 	let key = e.key.toLowerCase();
-
+	
 	switch (key) {
 		case "n":
 			map.reset(map.width, map.height);
@@ -45,7 +47,10 @@ reset.addEventListener("keydown", (e) => {
 			break;
 	}
 
-});
+}
+
+reset.addEventListener("keydown", button_keydown);
+playAgain.addEventListener("keydown", button_keydown);
 
 
 document.addEventListener("keydown", (e) => {

@@ -43,14 +43,7 @@ function tick() {
 		let targetX = (map.width * map.scale) / -2;
 		let targetY = (map.height * map.scale) / -2;
 
-		if (
-			camera.enabled == false &&
-			camera.zoom < targetZoom + 0.001 &&
-			Math.abs(camera.x) < Math.abs(targetX) + 0.001 &&
-			Math.abs(camera.y) < Math.abs(targetY) + 0.001
-		) {
-			camera.enabled = true;
-		} else {
+		if ( camera.enabled == false ) {
 			let factor = 1/16;
 			camera.zoom = camera.zoom + ( targetZoom - camera.zoom ) * factor;
 			camera.x = Math.round(camera.x + ( targetX - camera.x ) * factor);

@@ -1,5 +1,9 @@
+@import url("/fonts/Inter-Variable.css");
+
 body {
 	cursor: crosshair;
+
+	font-family: "Inter";
 }
 
 #screen {

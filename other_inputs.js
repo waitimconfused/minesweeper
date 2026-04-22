@@ -55,6 +55,8 @@ playAgain.addEventListener("keydown", button_keydown);
 
 document.addEventListener("keydown", (e) => {
 
+	if (e.target != document.body) return;
+
 	camera.inputMethod = "keyboard";
 
 	if (map.isPlaying == false) return;

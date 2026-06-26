@@ -13,7 +13,8 @@ const canvas = document.getElementById("screen");
 const context = canvas.getContext("2d");
 const playAgainButton = document.getElementById("again");
 GameMap.scale = 100;
-GameMap.reset(16, 16);
+let size = (localStorage.getItem("minesweeper-size") ?? "16x16").split("x");
+GameMap.reset(Number(size[0] ?? 16), Number(size[1] ?? 16));
 var cursorTransformation = null;
 function tick() {
     if (canvas.width != window.innerWidth) {

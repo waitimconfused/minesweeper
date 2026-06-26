@@ -10,6 +10,7 @@ body {
 	position: fixed;
 	top: 0px;
 	left: 0px;
+	z-index: -1000000;
 	/* translate: -50% -50%; */
 	/* cursor: crosshair; */
 	/* box-shadow: 0 0 3px 0 black; */
@@ -73,7 +74,19 @@ body {
 	margin-right: 8px;
 }
 
-section {
+#options {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	translate: -50% -50%;
+	display: none;
+}
+
+#options[show] {
+	display: unset;
+}
+
+section:not(.no-background) {
 	background-color: #00000071;
 	/* backdrop-filter: blur(10px) brightness(200%) hue-rotate(60deg); */
 	padding: 1rem 2rem;

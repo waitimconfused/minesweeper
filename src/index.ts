@@ -22,7 +22,12 @@ const playAgainButton:HTMLButtonElement = document.getElementById("again") as HT
 
 
 GameMap.scale = 100;
-GameMap.reset(16, 16);
+
+let size = (localStorage.getItem("minesweeper-size") ?? "16x16" ).split("x")
+GameMap.reset(
+	Number( size[0] ?? 16 ),
+	Number( size[1] ?? 16 )
+);
 
 var cursorTransformation:DOMMatrix|null = null;
 

@@ -20,32 +20,32 @@ export const html = {
 
 export class GameMap {
 
-	public static tiles:(TileType|number|undefined)[] = [];
-	public static tilesDiscovered:number = 0;
-	public static flagsUsed:number = 0;
+	public static tiles: (TileType | number | undefined)[] = [];
+	public static tilesDiscovered: number = 0;
+	public static flagsUsed: number = 0;
 
-	public static scale:number = 10;
+	public static scale: number = 10;
 
-	public static width:number = 0;
-	public static height:number = 0;
+	public static width: number = 0;
+	public static height: number = 0;
 
-	public static bombCount:number = 0;
-	public static bombTileIndexes:number[] = [];
+	public static bombCount: number = 0;
+	public static bombTileIndexes: number[] = [];
 
-	public static canvas:HTMLCanvasElement|null = null;
+	public static canvas: HTMLCanvasElement | null = null;
 
-	public static context:CanvasRenderingContext2D|null = null;
+	public static context: CanvasRenderingContext2D | null = null;
 
 	public static isPlaying: boolean = false;
 
 	public static styles = {
 
 		colour: {
-			unchecked: [ "green", "limegreen" ],
+			unchecked: ["green", "limegreen"],
 
-			safe: [ "burlywood", "beige" ],
+			safe: ["burlywood", "beige"],
 
-			bomb: [ "red", "orange" ]
+			bomb: ["red", "orange"]
 		},
 
 		image: {
@@ -56,11 +56,11 @@ export class GameMap {
 
 	};
 
-	public static reset(width:number, height:number) {
+	public static reset(width: number, height: number) {
 		this.width = width;
 		this.height = height;
 
-		this.tiles = new Array(width*height);
+		this.tiles = new Array(width * height);
 
 		this.tilesDiscovered = 0;
 		this.flagsUsed = 0;
@@ -71,13 +71,13 @@ export class GameMap {
 		html.winScreen.removeAttribute("show");
 
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
-		this.canvas.width = width*this.scale;
-		this.canvas.height = height*this.scale;
+		this.canvas.width = width * this.scale;
+		this.canvas.height = height * this.scale;
 		this.context = this.canvas.getContext("2d");
 
 		let bombCount = Math.floor(this.width * this.height / 4);
 
-		for (let i = 0; i < bombCount; i ++) {
+		for (let i = 0; i < bombCount; i++) {
 			let randomIndex = Math.floor(Math.random() * this.tiles.length);
 
 			while (this.bombTileIndexes.includes(randomIndex)) {
@@ -104,7 +104,7 @@ export class GameMap {
 
 	public static drawMap() {
 
-		for (let y = 0; y < this.height; y ++) {
+		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
 				this.drawTile(x, y);
 			}
@@ -112,13 +112,13 @@ export class GameMap {
 
 	}
 
-	public static drawTile(x:number, y:number) {
+	public static drawTile(x: number, y: number) {
 
 		if (!this.context) return;
 
-		let tile = this.tiles[ y * this.width + x ];
+		let tile = this.tiles[y * this.width + x];
 
-		let colourIndex = (y * this.width + x + y%2) % 2;
+		let colourIndex = (x + y % 2) % 2;
 
 		if (tile == undefined || tile == "Flag" || tile == "Maybe") {
 			this.context.fillStyle = this.styles.colour.unchecked[colourIndex]!;
@@ -127,37 +127,37 @@ export class GameMap {
 		}
 
 		this.context.beginPath();
-		this.context.rect(x*this.scale, y*this.scale, this.scale, this.scale);
+		this.context.rect(x * this.scale, y * this.scale, this.scale, this.scale);
 		this.context.closePath();
 		this.context.fill();
 
 		// If current tile is a bomb
 		if (typeof tile == "string" && tile.startsWith("Bomb")) {
-			let index = Number( tile.replace("Bomb", "") );
+			let index = Number(tile.replace("Bomb", ""));
 			this.context.fillStyle = this.styles.colour.bomb[index]!;
 			this.context.beginPath();
-			let padding = this.scale/10;
-			let radius = this.scale/10;
-			this.context.roundRect(x*this.scale + padding/2, y*this.scale + padding/2, this.scale-padding, this.scale-padding, radius);
+			let padding = this.scale / 10;
+			let radius = this.scale / 10;
+			this.context.roundRect(x * this.scale + padding / 2, y * this.scale + padding / 2, this.scale - padding, this.scale - padding, radius);
 			this.context.closePath();
 			this.context.fill();
 		}
-		let dx = x * this.scale + this.scale/2;
-		let dy = y * this.scale + this.scale/2;
+		let dx = x * this.scale + this.scale / 2;
+		let dy = y * this.scale + this.scale / 2;
 
 		if (tile == "Flag") {
-			let size = this.scale*0.75;
-			this.context.drawImage(this.styles.image.flag, dx-size/2, dy-size/2, size, size);
+			let size = this.scale * 0.75;
+			this.context.drawImage(this.styles.image.flag, dx - size / 2, dy - size / 2, size, size);
 			return;
 
 		} else if (tile == "Maybe") {
-			let size = this.scale*0.5;
-			this.context.drawImage(this.styles.image.maybe, dx-size/2, dy-size/2, size, size);
+			let size = this.scale * 0.5;
+			this.context.drawImage(this.styles.image.maybe, dx - size / 2, dy - size / 2, size, size);
 			return;
 
 		} else if (typeof tile == "string" && tile.startsWith("Bomb")) {
-			let size = this.scale*0.75;
-			this.context.drawImage(this.styles.image.bomb, dx-size/2, dy-size/2, size, size);
+			let size = this.scale * 0.75;
+			this.context.drawImage(this.styles.image.bomb, dx - size / 2, dy - size / 2, size, size);
 			return;
 		}
 		if (tile == 0) return;
@@ -171,7 +171,7 @@ export class GameMap {
 		this.context.fillText(tile.toString(), dx, dy);
 	}
 
-	public static exploreTile(x:number, y:number, forceUpdate=false) {
+	public static exploreTile(x: number, y: number, forceUpdate = false) {
 
 		if (this.isPlaying == false && forceUpdate == false) return;
 
@@ -186,18 +186,18 @@ export class GameMap {
 
 		this.checkForWin();
 
-		if ( this.tiles[index] == "Flag" ) return;
+		if (this.tiles[index] == "Flag") return;
 
 		// If tile is a bomb
-		if ( this.bombTileIndexes.includes(index) ) {
+		if (this.bombTileIndexes.includes(index)) {
 
-			let randomNumber = Math.floor( Math.random()*this.styles.colour.bomb.length );
+			let randomNumber = Math.floor(Math.random() * this.styles.colour.bomb.length);
 
 			this.tiles[index] = `Bomb${randomNumber}`;
 
 			this.drawTile(x, y);
 
-			html.gameoverScreen_score.innerText = "~"+(this.tilesDiscovered / this.tiles.length * 100).toFixed(3)+"%";
+			html.gameoverScreen_score.innerText = "~" + (this.tilesDiscovered / this.tiles.length * 100).toFixed(3) + "%";
 
 			html.gameoverScreen.setAttribute("show", "true");
 			html.reset.focus();
@@ -209,31 +209,31 @@ export class GameMap {
 
 		}
 
-		let getIndex = (x:number, y:number) => {
-			if ( x < 0 || x >= this.width ) return -1;
-			if ( y < 0 || y >= this.height ) return -1;
+		let getIndex = (x: number, y: number) => {
+			if (x < 0 || x >= this.width) return -1;
+			if (y < 0 || y >= this.height) return -1;
 			return y * this.width + x;
-		} 
+		}
 
 		let neighbourIndexes = [
-			getIndex(x,   y-1),
-			getIndex(x+1, y-1),
-			getIndex(x+1, y),
-			getIndex(x+1, y+1),
-			getIndex(x,   y+1),
-			getIndex(x-1, y+1),
-			getIndex(x-1, y),
-			getIndex(x-1, y-1)
+			getIndex(x, y - 1),
+			getIndex(x + 1, y - 1),
+			getIndex(x + 1, y),
+			getIndex(x + 1, y + 1),
+			getIndex(x, y + 1),
+			getIndex(x - 1, y + 1),
+			getIndex(x - 1, y),
+			getIndex(x - 1, y - 1)
 		];
 
 		let sumOfBombs = 0;
 		let sumOfFlags = 0;
 
-		for (let i = 0; i < neighbourIndexes.length; i ++) {
+		for (let i = 0; i < neighbourIndexes.length; i++) {
 			let neighbourIndex = neighbourIndexes[i]!;
-			if ( this.bombTileIndexes.includes(neighbourIndex) ) sumOfBombs += 1;
+			if (this.bombTileIndexes.includes(neighbourIndex)) sumOfBombs += 1;
 			let tile = this.tiles[neighbourIndex];
-			if ( tile == "Flag" ) sumOfFlags += 1;
+			if (tile == "Flag") sumOfFlags += 1;
 		}
 
 		this.tiles[index] = sumOfBombs;
@@ -242,26 +242,26 @@ export class GameMap {
 
 		if (sumOfBombs == 0) {
 
-			for (let i = 0; i < neighbourIndexes.length; i ++) {
+			for (let i = 0; i < neighbourIndexes.length; i++) {
 				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
 				if (tile != undefined && tile != "Maybe") continue;
 
-				let y = Math.floor( index / this.width );
+				let y = Math.floor(index / this.width);
 				let x = index % this.width;
 
 				this.exploreTile(x, y, true);
 			}
 		} else if (sumOfBombs == sumOfFlags) {
 
-			for (let i = 0; i < neighbourIndexes.length; i ++) {
+			for (let i = 0; i < neighbourIndexes.length; i++) {
 				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
 				if (tile != undefined && tile != "Maybe") continue;
 
-				let y = Math.floor( index / this.width );
+				let y = Math.floor(index / this.width);
 				let x = index % this.width;
 
 				this.exploreTile(x, y, true);
@@ -274,7 +274,7 @@ export class GameMap {
 
 	}
 
-	public static toggleFlag(x:number, y:number) {
+	public static toggleFlag(x: number, y: number) {
 		if (y < 0) return;
 		if (x < 0) return;
 		if (y > this.height) return;
@@ -297,7 +297,7 @@ export class GameMap {
 
 	}
 
-	public static toggleMaybe(x:number, y:number) {
+	public static toggleMaybe(x: number, y: number) {
 		if (y < 0) return;
 		if (x < 0) return;
 		if (y > this.height) return;
@@ -315,11 +315,11 @@ export class GameMap {
 
 	}
 
-	public static getTileFromPos(x:number, y:number) {
+	public static getTileFromPos(x: number, y: number) {
 		if (y < 0) return NaN;
 		if (x < 0) return NaN;
 		if (y > this.height) return NaN;
-		if (x > this.width-1) return NaN;
+		if (x > this.width - 1) return NaN;
 
 		let index = y * this.width + x;
 
@@ -331,7 +331,7 @@ export class GameMap {
 	}
 
 	public static checkForWin() {
-		if ( this.isPlaying == false ) return false;
+		if (this.isPlaying == false) return false;
 		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return false;
 
 		html.winScreen.setAttribute("show", "true");

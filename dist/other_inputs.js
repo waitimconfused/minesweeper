@@ -4,23 +4,6 @@ import { GameMap } from "./map.js";
 const reset = document.getElementById("reset");
 const playAgain = document.getElementById("again");
 const canvas = document.getElementById("screen");
-function glideCameraByBlockOffset(x, y, c = 1) {
-    if (c >= 5)
-        return;
-    camera.x -= x * GameMap.scale / 4;
-    camera.y -= y * GameMap.scale / 4;
-    setTimeout(() => glideCameraByBlockOffset(x, y, c + 1), 20);
-}
-function glideCameraByZoom(desiredZoom, step = 1) {
-    if (step >= 5)
-        return;
-    camera.zoom += desiredZoom / 4;
-    let minZoom = Math.min((window.innerHeight - 100) / (GameMap.height * GameMap.scale), (window.innerWidth - 100) / (GameMap.width * GameMap.scale));
-    let maxZoom = 1;
-    camera.zoom = Math.min(camera.zoom, maxZoom);
-    camera.zoom = Math.max(camera.zoom, minZoom);
-    setTimeout(() => glideCameraByZoom(desiredZoom, step + 1), 20);
-}
 function button_keydown(e) {
     let key = e.key.toLowerCase();
     switch (key) {
@@ -65,22 +48,22 @@ document.addEventListener("keydown", (e) => {
     key = key.toLowerCase();
     switch (key) {
         case "a":
-            glideCameraByBlockOffset(-1, 0);
+            camera.glideByBlockOffset(-1, 0);
             camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
             camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
             break;
         case "d":
-            glideCameraByBlockOffset(1, 0);
+            camera.glideByBlockOffset(1, 0);
             camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
             camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
             break;
         case "w":
-            glideCameraByBlockOffset(0, -1);
+            camera.glideByBlockOffset(0, -1);
             camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
             camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
             break;
         case "s":
-            glideCameraByBlockOffset(0, 1);
+            camera.glideByBlockOffset(0, 1);
             camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
             camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
             break;
@@ -94,10 +77,10 @@ document.addEventListener("keydown", (e) => {
             click("maybe");
             break;
         case "j":
-            glideCameraByZoom(-0.25);
+            camera.glideByZoom(-0.25);
             break;
         case "k":
-            glideCameraByZoom(0.25);
+            camera.glideByZoom(0.25);
             break;
         default:
             break;

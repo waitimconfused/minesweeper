@@ -77,7 +77,7 @@ export class GameMap {
         if (!this.context)
             return;
         let tile = this.tiles[y * this.width + x];
-        let colourIndex = (y * this.width + x + y % 2) % 2;
+        let colourIndex = (x + y % 2) % 2;
         if (tile == undefined || tile == "Flag" || tile == "Maybe") {
             this.context.fillStyle = this.styles.colour.unchecked[colourIndex];
         }

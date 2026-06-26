@@ -9,13 +9,13 @@ const html = {
 }
 
 function toggleMenu() {
-	let state:boolean = html.menu.hasAttribute("show");
+	let state: boolean = html.menu.hasAttribute("show");
 
 	if (state == false) html.menu.setAttribute("show", "");
 	else html.menu.removeAttribute("show");
 }
 
-document.addEventListener("keyup", (e:KeyboardEvent) => {
+document.addEventListener("keyup", (e: KeyboardEvent) => {
 
 	if (e.ctrlKey == false) return;
 	if (e.key != ",") return;

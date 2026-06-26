@@ -1,3 +1,5 @@
+import { GameMap } from "./map.js";
+
 type mouseButtons = "left" | "right" | "wheel" | "back" | "forward" | "eraser";
 
 type CameraStorage = {
@@ -18,7 +20,10 @@ type CameraStorage = {
 	},
 }
 
-const camera:CameraStorage = {
+const camera: CameraStorage & {
+	glideByBlockOffset: (x: number, y: number, c?: number) => void,
+	glideByZoom: (zoomOffset: number, step?: number) => void
+} = {
 
 	enabled: false,
 
@@ -45,7 +50,31 @@ const camera:CameraStorage = {
 		shift: false,
 		alt: false
 	},
+
+	glideByBlockOffset(x: number, y: number, step = 1) {
+		if (step >= 5) return;
+		camera.x -= x * GameMap.scale / 4;
+		camera.y -= y * GameMap.scale / 4;
+		setTimeout(() => this.glideByBlockOffset(x, y, step + 1), 20);
+	},
+
+	glideByZoom(zoomOffset: number, step = 1) {
+		if (step >= 5) return;
+		camera.zoom += zoomOffset / 4;
+
+		let minZoom = Math.min(
+			(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
+			(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
+		);
+		let maxZoom = 1;
+
+		camera.zoom = Math.min(camera.zoom, maxZoom);
+		camera.zoom = Math.max(camera.zoom, minZoom);
+
+		setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
+	}
 };
+export default camera;
 
 document.addEventListener("pointermove", (e) => {
 	camera.mouse.x = e.clientX;
@@ -54,7 +83,7 @@ document.addEventListener("pointermove", (e) => {
 });
 
 document.addEventListener("pointerdown", (e) => {
-	let mouseButtonNames:mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
+	let mouseButtonNames: mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
@@ -67,7 +96,7 @@ document.addEventListener("pointerdown", (e) => {
 });
 document.addEventListener("pointerup", (e) => {
 
-	let mouseButtonNames:mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
+	let mouseButtonNames: mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
@@ -83,10 +112,10 @@ document.addEventListener("contextmenu", (e) => {
 	e.preventDefault();
 });
 
-document.addEventListener("wheel", scrollEventCallback, {passive:false});
+document.addEventListener("wheel", scrollEventCallback, { passive: false });
 document.addEventListener("keydown", scrollEventCallback);
 
-function scrollEventCallback(e:WheelEvent|KeyboardEvent) {
+function scrollEventCallback(e: WheelEvent | KeyboardEvent) {
 
 	if (e instanceof WheelEvent && e.ctrlKey) e.preventDefault();
 
@@ -118,7 +147,14 @@ function scrollEventCallback(e:WheelEvent|KeyboardEvent) {
 		throw new Error("The function scrollEventCallback requires a parameter of type WheelEvent or KeyboardEvent");
 	}
 
-	camera.zoom = Math.min(camera.zoom, 1);
+	let minZoom = Math.min(
+		(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
+		(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
+	);
+	let maxZoom = 1;
+
+	camera.zoom = Math.min(camera.zoom, maxZoom);
+	camera.zoom = Math.max(camera.zoom, minZoom);
 
 }
 
@@ -140,6 +176,3 @@ document.addEventListener("keyup", (e) => {
 	camera.buttons.alt = e.altKey;
 
 });
-
-
-export default camera;

@@ -1,3 +1,4 @@
+import { GameMap } from "./map.js";
 const camera = {
     enabled: false,
     inputMethod: "mouse",
@@ -19,7 +20,25 @@ const camera = {
         shift: false,
         alt: false
     },
+    glideByBlockOffset(x, y, step = 1) {
+        if (step >= 5)
+            return;
+        camera.x -= x * GameMap.scale / 4;
+        camera.y -= y * GameMap.scale / 4;
+        setTimeout(() => this.glideByBlockOffset(x, y, step + 1), 20);
+    },
+    glideByZoom(zoomOffset, step = 1) {
+        if (step >= 5)
+            return;
+        camera.zoom += zoomOffset / 4;
+        let minZoom = Math.min((window.innerHeight - 100) / (GameMap.height * GameMap.scale), (window.innerWidth - 100) / (GameMap.width * GameMap.scale));
+        let maxZoom = 1;
+        camera.zoom = Math.min(camera.zoom, maxZoom);
+        camera.zoom = Math.max(camera.zoom, minZoom);
+        setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
+    }
 };
+export default camera;
 document.addEventListener("pointermove", (e) => {
     camera.mouse.x = e.clientX;
     camera.mouse.y = e.clientY;
@@ -90,7 +109,10 @@ function scrollEventCallback(e) {
     else {
         throw new Error("The function scrollEventCallback requires a parameter of type WheelEvent or KeyboardEvent");
     }
-    camera.zoom = Math.min(camera.zoom, 1);
+    let minZoom = Math.min((window.innerHeight - 100) / (GameMap.height * GameMap.scale), (window.innerWidth - 100) / (GameMap.width * GameMap.scale));
+    let maxZoom = 1;
+    camera.zoom = Math.min(camera.zoom, maxZoom);
+    camera.zoom = Math.max(camera.zoom, minZoom);
 }
 document.addEventListener("keydown", (e) => {
     if (e.repeat)
@@ -106,5 +128,4 @@ document.addEventListener("keyup", (e) => {
     camera.buttons.shift = e.shiftKey;
     camera.buttons.alt = e.altKey;
 });
-export default camera;
 //# sourceMappingURL=camera.js.map

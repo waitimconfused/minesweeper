@@ -11,24 +11,24 @@
 
 	<canvas id="screen"></canvas>
 
-	<div id="info">
+	<section id="info">
 		<label><img src="./assets/flag.svg" alt="Flags used:"><span id="flags-used">0</span>/<span id="flag-count">0</span></label>
 		<label><img src="./assets/eye.svg" alt="Revealed tiles:"><span id="tiles-shown">0</span>/<span id="tile-count">0</span></label>
-	</div>
+	</section>
 
-	<div id="gameover">
+	<section id="gameover">
 		<h1>Game Over!</h1>
 		<p>You were <code id="score">~0%</code> complete!</p>
 		<button id="reset">Play again</button>
-	</div>
+	</section>
 
-	<div id="win">
+	<section id="win">
 		<h1>You win!</h1>
 		<p>You found all the bombs!</p>
 		<button id="again">Play again?</button>
-	</div>
+	</section>
 	
-	<script src="./index.js" type="module"></script>
-	<script src="./other_inputs.js" type="module" ></script>
+	<script src="./dist/index.js" type="module"></script>
+	<script src="./dist/other_inputs.js" type="module" ></script>
 </body>
 </html>

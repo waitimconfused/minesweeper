@@ -1,0 +1,25 @@
+{
+	"name": "compscig12-towerdefense",
+	"version": "1.0.0",
+	"description": "This is only Part 1 (version 1.0) of a multi-unit project.",
+	"author": "",
+	"homepage": "https://github.com/waitimconfused/compscig12-towerdefense#readme",
+	"bugs": {
+		"url": "https://github.com/waitimconfused/compscig12-towerdefense/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/waitimconfused/compscig12-towerdefense.git"
+	},
+	"license": "ISC",
+	"type": "commonjs",
+	"scripts": {
+		"build": "npm run reload && npx tsc",
+		"reload": "node reload-json.js",
+		"dev": "npm run reload && npx tsc --watch"
+	},
+	"dependencies": {
+		"@types/node": "^25.5.0",
+		"typescript": "^6.0.2"
+	}
+}

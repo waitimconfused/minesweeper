@@ -1,45 +1,42 @@
 import camera from "./camera.js";
 
 export const html = {
-	flag_count: document.getElementById("flag-count"),
-	flags_used: document.getElementById("flags-used"),
+	flag_count: document.getElementById("flag-count") as HTMLSpanElement,
+	flags_used: document.getElementById("flags-used") as HTMLSpanElement,
 
-	tile_count: document.getElementById("tile-count"),
-	tiles_shown: document.getElementById("tiles-shown"),
+	tile_count: document.getElementById("tile-count") as HTMLSpanElement,
+	tiles_shown: document.getElementById("tiles-shown") as HTMLSpanElement,
 
-	gameoverScreen: document.getElementById("gameover"),
-	gameoverScreen_score: document.getElementById("score"),
+	gameoverScreen: document.getElementById("gameover") as HTMLElement,
+	gameoverScreen_score: document.getElementById("score") as HTMLSpanElement,
 
-	winScreen: document.getElementById("win"),
+	winScreen: document.getElementById("win") as HTMLElement,
 
-
-	reset: document.getElementById("reset"),
-	playAgain: document.getElementById("again")
+	reset: document.getElementById("reset") as HTMLButtonElement,
+	playAgain: document.getElementById("again") as HTMLButtonElement
 };
 
-export default {
+export class GameMap {
 	
-	tiles: [],
-	tilesDiscovered: 0,
-	flagsUsed: 0,
+	public static tiles:(string|number|undefined)[] = [];
+	public static tilesDiscovered:number = 0;
+	public static flagsUsed:number = 0;
 
-	scale: 10,
+	public static scale:number = 10;
 
-	width: 0,
-	height: 0,
+	public static width:number = 0;
+	public static height:number = 0;
 
-	bombCount: 0,
-	bombTileIndexes: [],
+	public static bombCount:number = 0;
+	public static bombTileIndexes:number[] = [];
 
-	/** @type {?OffscreenCanvas} */
-	canvas: null,
+	public static canvas:HTMLCanvasElement|null = null;
 
-	/** @type {?OffscreenCanvasRenderingContext2D} */
-	context: null,
+	public static context:CanvasRenderingContext2D|null = null;
 
-	isPlaying: false,
+	public static isPlaying: boolean = false;
 
-	styles: {
+	public static styles = {
 		
 		colour: {
 			unchecked: [ "green", "limegreen" ],
@@ -54,13 +51,9 @@ export default {
 			flag: new Image
 		}
 
-	},
+	};
 
-	/**
-	 * @param {number} width 
-	 * @param {number} height 
-	 */
-	reset(width, height) {
+	public static reset(width:number, height:number) {
 		this.width = width;
 		this.height = height;
 
@@ -69,12 +62,12 @@ export default {
 		this.tilesDiscovered = 0;
 		this.flagsUsed = 0;
 
-		this.bombIndexes = [];
+		this.bombTileIndexes = [];
 
 		html.gameoverScreen.removeAttribute("show");
 		html.winScreen.removeAttribute("show");
 		
-		this.canvas = document.createElement("canvas");
+		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = width*this.scale;
 		this.canvas.height = height*this.scale;
 		this.context = this.canvas.getContext("2d");
@@ -104,9 +97,9 @@ export default {
 		camera.y = (this.height * this.scale) / -2;
 		camera.enabled = true;
 
-	},
+	}
 
-	drawMap() {
+	public static drawMap() {
 
 		for (let y = 0; y < this.height; y ++) {
 			for (let x = 0; x < this.width; x++) {
@@ -114,22 +107,20 @@ export default {
 			}
 		}
 
-	},
+	}
 
+	public static drawTile(x:number, y:number) {
 
-	/**
-	 * @param {number} x 
-	 * @param {number} y 
-	 */
-	drawTile(x, y) {
+		if (!this.context) return;
+
 		let tile = this.tiles[ y * this.width + x ];
 
 		let colourIndex = (y * this.width + x + y%2) % 2;
 
 		if (tile == undefined || tile == "Flag") {
-			this.context.fillStyle = this.styles.colour.unchecked[colourIndex];
+			this.context.fillStyle = this.styles.colour.unchecked[colourIndex]!;
 		} else {
-			this.context.fillStyle = this.styles.colour.safe[colourIndex];
+			this.context.fillStyle = this.styles.colour.safe[colourIndex]!;
 		}
 
 		this.context.beginPath();
@@ -140,7 +131,7 @@ export default {
 		// If current tile is a bomb
 		if (typeof tile == "string" && tile.startsWith("Bomb")) {
 			let index = Number( tile.replace("Bomb", "") );
-			this.context.fillStyle = this.styles.colour.bomb[index];
+			this.context.fillStyle = this.styles.colour.bomb[index]!;
 			this.context.beginPath();
 			let padding = this.scale/10;
 			let radius = this.scale/10;
@@ -168,16 +159,10 @@ export default {
 		this.context.font = "600 24px poppins"
 		this.context.textAlign = "center";
 		this.context.textBaseline = "middle";
-		this.context.fillText(tile, dx, dy);
-	},
+		this.context.fillText(tile.toString(), dx, dy);
+	}
 
-
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @param {?boolean} forceUpdate
-	 */
-	exploreTile(x, y, forceUpdate=false) {
+	public static exploreTile(x:number, y:number, forceUpdate=false) {
 
 		if (this.isPlaying == false && forceUpdate == false) return;
 
@@ -217,7 +202,7 @@ export default {
 		}
 		
 
-		let getIndex = (x, y) => {
+		let getIndex = (x:number, y:number) => {
 			if ( x < 0 || x >= this.width ) return -1;
 			if ( y < 0 || y >= this.height ) return -1;
 
@@ -240,20 +225,19 @@ export default {
 		let sumOfFlags = 0;
 
 		for (let i = 0; i < neighbourIndexes.length; i ++) {
-			let neighbourIndex = neighbourIndexes[i];
+			let neighbourIndex = neighbourIndexes[i]!;
 			if ( this.bombTileIndexes.includes(neighbourIndex) ) sumOfBombs += 1;
 			if ( this.tiles[neighbourIndex] == "Flag" ) sumOfFlags += 1;
 		}
 
 		this.tiles[index] = sumOfBombs;
 
-		html.tiles_shown.innerText = this.tilesDiscovered;
-
+		html.tiles_shown.innerText = this.tilesDiscovered.toString();
 		
 		if (sumOfBombs == 0) {
 
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
-				let index = neighbourIndexes[i];
+				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
 				if (tile != undefined) continue;
@@ -266,7 +250,7 @@ export default {
 		} else if (sumOfBombs == sumOfFlags) {
 			
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
-				let index = neighbourIndexes[i];
+				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
 				if (tile != undefined) continue;
@@ -282,13 +266,9 @@ export default {
 
 		return false;
 		
-	},
+	}
 
-	/**
-	 * @param {number} x 
-	 * @param {number} y 
-	 */
-	toggleFlag(x, y) {
+	public static toggleFlag(x:number, y:number) {
 		if (y < 0) return;
 		if (x < 0) return;
 		if (y > this.height) return;
@@ -304,18 +284,14 @@ export default {
 			this.flagsUsed -= 1;
 		}
 
-		html.flags_used.innerText = this.flagsUsed;
+		html.flags_used.innerText = this.flagsUsed.toString();
 		this.checkForWin();
 
 		this.drawTile(x, y);
 		
-	},
+	}
 
-	/**
-	 * @param {number} x 
-	 * @param {number} y 
-	 */
-	getTileFromPos(x, y) {
+	public static getTileFromPos(x:number, y:number) {
 		if (y < 0) return NaN;
 		if (x < 0) return NaN;
 		if (y > this.height) return NaN;
@@ -328,17 +304,18 @@ export default {
 		}
 
 		return this.tiles[index];
-	},
+	}
 
-	checkForWin() {
-		if ( this.isPlaying == false ) return;
-		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return;
+	public static checkForWin() {
+		if ( this.isPlaying == false ) return false;
+		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return false;
 		
 		html.winScreen.setAttribute("show", "true");
 		html.playAgain.focus();
 
 		this.isPlaying = false;
 		camera.enabled = false;
-	},
+		return true;
+	}
 
 };

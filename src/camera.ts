@@ -1,6 +1,24 @@
-import map from "./map.js";
+type mouseButtons = "left" | "right" | "wheel" | "back" | "forward" | "eraser";
 
-const camera = {
+type CameraStorage = {
+	enabled: boolean,
+
+	inputMethod: "mouse" | "keyboard",
+
+	x: number,
+	y: number,
+	zoom: number,
+
+	mouse: { x: number, y: number },
+
+	buttons: { [x in mouseButtons]: boolean } & {
+		ctrl: boolean,
+		shift: boolean,
+		alt: boolean
+	},
+}
+
+const camera:CameraStorage = {
 	
 	enabled: false,
 
@@ -36,7 +54,7 @@ document.addEventListener("pointermove", (e) => {
 });
 
 document.addEventListener("pointerdown", (e) => {
-	let mouseButtonNames = ["left", "right", "wheel", "back", "forward", "eraser"];
+	let mouseButtonNames:mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
@@ -49,7 +67,7 @@ document.addEventListener("pointerdown", (e) => {
 });
 document.addEventListener("pointerup", (e) => {
 
-	let mouseButtonNames = ["left", "right", "wheel", "back", "forward", "eraser"];
+	let mouseButtonNames:mouseButtons[] = ["left", "right", "wheel", "back", "forward", "eraser"];
 
 	for (let buttonName of mouseButtonNames) {
 		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
@@ -65,20 +83,10 @@ document.addEventListener("contextmenu", (e) => {
 	e.preventDefault();
 });
 
-document.addEventListener("scroll", (e) => {
-	let mouseButtonNames = ["left", "right", "wheel", "back", "forward", "eraser"];
-
-	for (let buttonName of mouseButtonNames) {
-		let isPressed = Boolean(e.buttons & (1 << mouseButtonNames.indexOf(buttonName)));
-		camera.buttons[buttonName] = isPressed;
-	}
-});
-
-
 document.addEventListener("wheel", scrollEventCallback, {passive:false});
 document.addEventListener("keydown", scrollEventCallback);
 
-function scrollEventCallback(e) {
+function scrollEventCallback(e:WheelEvent|KeyboardEvent) {
 
 	if (e instanceof WheelEvent && e.ctrlKey) e.preventDefault();
 

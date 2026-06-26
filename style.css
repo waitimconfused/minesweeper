@@ -16,7 +16,7 @@ body {
 	/* border-radius: 5px; */
 }
 
-#gameover, #win {
+#gameover, #win, #settings {
 	position: fixed;
 	top: 50%;
 	left: 50%;
@@ -34,7 +34,7 @@ body {
 	visibility: hidden;
 }
 
-#gameover[show], #win[show] {
+#gameover[show], #win[show], #settings[show] {
 	visibility: visible;
 }
 
@@ -73,7 +73,7 @@ body {
 	margin-right: 8px;
 }
 
-div {
+section {
 	background-color: #00000071;
 	/* backdrop-filter: blur(10px) brightness(200%) hue-rotate(60deg); */
 	padding: 1rem 2rem;

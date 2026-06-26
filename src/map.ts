@@ -1,5 +1,7 @@
 import camera from "./camera.js";
 
+type TileType = "Flag" | `Bomb${number}` | "Maybe";
+
 export const html = {
 	flag_count: document.getElementById("flag-count") as HTMLSpanElement,
 	flags_used: document.getElementById("flags-used") as HTMLSpanElement,
@@ -17,8 +19,8 @@ export const html = {
 };
 
 export class GameMap {
-	
-	public static tiles:(string|number|undefined)[] = [];
+
+	public static tiles:(TileType|number|undefined)[] = [];
 	public static tilesDiscovered:number = 0;
 	public static flagsUsed:number = 0;
 
@@ -37,7 +39,7 @@ export class GameMap {
 	public static isPlaying: boolean = false;
 
 	public static styles = {
-		
+
 		colour: {
 			unchecked: [ "green", "limegreen" ],
 
@@ -48,7 +50,8 @@ export class GameMap {
 
 		image: {
 			bomb: new Image,
-			flag: new Image
+			flag: new Image,
+			maybe: new Image
 		}
 
 	};
@@ -66,12 +69,12 @@ export class GameMap {
 
 		html.gameoverScreen.removeAttribute("show");
 		html.winScreen.removeAttribute("show");
-		
+
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = width*this.scale;
 		this.canvas.height = height*this.scale;
 		this.context = this.canvas.getContext("2d");
-		
+
 		let bombCount = Math.floor(this.width * this.height / 4);
 
 		for (let i = 0; i < bombCount; i ++) {
@@ -117,7 +120,7 @@ export class GameMap {
 
 		let colourIndex = (y * this.width + x + y%2) % 2;
 
-		if (tile == undefined || tile == "Flag") {
+		if (tile == undefined || tile == "Flag" || tile == "Maybe") {
 			this.context.fillStyle = this.styles.colour.unchecked[colourIndex]!;
 		} else {
 			this.context.fillStyle = this.styles.colour.safe[colourIndex]!;
@@ -146,6 +149,12 @@ export class GameMap {
 			let size = this.scale*0.75;
 			this.context.drawImage(this.styles.image.flag, dx-size/2, dy-size/2, size, size);
 			return;
+
+		} else if (tile == "Maybe") {
+			let size = this.scale*0.5;
+			this.context.drawImage(this.styles.image.maybe, dx-size/2, dy-size/2, size, size);
+			return;
+
 		} else if (typeof tile == "string" && tile.startsWith("Bomb")) {
 			let size = this.scale*0.75;
 			this.context.drawImage(this.styles.image.bomb, dx-size/2, dy-size/2, size, size);
@@ -170,22 +179,22 @@ export class GameMap {
 		if (x < 0) return;
 		if (y >= this.height) return;
 		if (x >= this.width) return;
-		
+
 		let index = y * this.width + x;
-		
+
 		if (this.tiles[index] == undefined) this.tilesDiscovered += 1;
-		
+
 		this.checkForWin();
-		
-		// If the tile is a flag
+
 		if ( this.tiles[index] == "Flag" ) return;
+		if ( this.tiles[index] == "Maybe" ) return;
 
 		// If tile is a bomb
 		if ( this.bombTileIndexes.includes(index) ) {
 
 			let randomNumber = Math.floor( Math.random()*this.styles.colour.bomb.length );
 
-			this.tiles[index] = "Bomb"+randomNumber;
+			this.tiles[index] = `Bomb${randomNumber}`;
 
 			this.drawTile(x, y);
 
@@ -200,16 +209,13 @@ export class GameMap {
 			return;
 
 		}
-		
 
 		let getIndex = (x:number, y:number) => {
 			if ( x < 0 || x >= this.width ) return -1;
 			if ( y < 0 || y >= this.height ) return -1;
-
 			return y * this.width + x;
 		} 
 
-		// y * this.width + x
 		let neighbourIndexes = [
 			getIndex(x,   y-1),
 			getIndex(x+1, y-1),
@@ -220,21 +226,24 @@ export class GameMap {
 			getIndex(x-1, y),
 			getIndex(x-1, y-1)
 		];
-		
+
 		let sumOfBombs = 0;
 		let sumOfFlags = 0;
+		let hasMaybe = false;
 
 		for (let i = 0; i < neighbourIndexes.length; i ++) {
 			let neighbourIndex = neighbourIndexes[i]!;
 			if ( this.bombTileIndexes.includes(neighbourIndex) ) sumOfBombs += 1;
-			if ( this.tiles[neighbourIndex] == "Flag" ) sumOfFlags += 1;
+			let tile = this.tiles[neighbourIndex];
+			if ( tile == "Flag" ) sumOfFlags += 1;
+			if ( tile == "Maybe" ) hasMaybe = true;
 		}
 
 		this.tiles[index] = sumOfBombs;
 
 		html.tiles_shown.innerText = this.tilesDiscovered.toString();
-		
-		if (sumOfBombs == 0) {
+
+		if (sumOfBombs == 0 && hasMaybe == false) {
 
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
 				let index = neighbourIndexes[i]!;
@@ -247,8 +256,8 @@ export class GameMap {
 
 				this.exploreTile(x, y, true);
 			}
-		} else if (sumOfBombs == sumOfFlags) {
-			
+		} else if (sumOfBombs == sumOfFlags && hasMaybe == false) {
+
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
 				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
@@ -265,7 +274,7 @@ export class GameMap {
 		this.drawTile(x, y);
 
 		return false;
-		
+
 	}
 
 	public static toggleFlag(x:number, y:number) {
@@ -276,7 +285,7 @@ export class GameMap {
 
 		let index = y * this.width + x;
 
-		if (this.tiles[index] == undefined) {
+		if (this.tiles[index] == undefined || this.tiles[index] == "Maybe") {
 			this.tiles[index] = "Flag";
 			this.flagsUsed += 1;
 		} else if (this.tiles[index] == "Flag") {
@@ -288,7 +297,25 @@ export class GameMap {
 		this.checkForWin();
 
 		this.drawTile(x, y);
-		
+
+	}
+
+	public static toggleMaybe(x:number, y:number) {
+		if (y < 0) return;
+		if (x < 0) return;
+		if (y > this.height) return;
+		if (x > this.width) return;
+
+		let index = y * this.width + x;
+
+		if (this.tiles[index] == undefined) {
+			this.tiles[index] = "Maybe";
+		} else if (this.tiles[index] == "Maybe") {
+			this.tiles[index] = undefined;
+		}
+
+		this.drawTile(x, y);
+
 	}
 
 	public static getTileFromPos(x:number, y:number) {
@@ -309,7 +336,7 @@ export class GameMap {
 	public static checkForWin() {
 		if ( this.isPlaying == false ) return false;
 		if (this.tilesDiscovered != this.tiles.length - this.bombTileIndexes.length) return false;
-		
+
 		html.winScreen.setAttribute("show", "true");
 		html.playAgain.focus();
 

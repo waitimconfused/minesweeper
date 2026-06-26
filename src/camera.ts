@@ -19,7 +19,7 @@ type CameraStorage = {
 }
 
 const camera:CameraStorage = {
-	
+
 	enabled: false,
 
 	/** @type { "mouse" | "keyboard" } */

@@ -7,6 +7,8 @@ GameMap.styles.image.bomb = new Image;
 GameMap.styles.image.bomb.src = "./assets/bomb.svg";
 GameMap.styles.image.flag = new Image;
 GameMap.styles.image.flag.src = "./assets/flag.svg";
+GameMap.styles.image.maybe = new Image;
+GameMap.styles.image.maybe.src = "./assets/maybe.svg";
 const canvas = document.getElementById("screen");
 const context = canvas.getContext("2d");
 const playAgainButton = document.getElementById("again");
@@ -95,19 +97,28 @@ export function click(type) {
         }
         GameMap.exploreTile(point.x, point.y);
     }
-    else {
+    else if (type == "flag") {
         GameMap.toggleFlag(point.x, point.y);
+    }
+    else if (type == "maybe") {
+        GameMap.toggleMaybe(point.x, point.y);
     }
 }
 document.addEventListener("click", (e) => {
     if (camera.inputMethod != "mouse")
         return;
-    click("reveal");
+    if (!e.shiftKey)
+        click("reveal");
+    else
+        click("maybe");
 });
 document.addEventListener("contextmenu", (e) => {
     if (camera.inputMethod != "mouse")
         return;
-    click("flag");
+    if (!e.shiftKey)
+        click("flag");
+    else
+        click("maybe");
 });
 html.reset.addEventListener("click", () => {
     camera.x = (GameMap.width * GameMap.scale) / -2;

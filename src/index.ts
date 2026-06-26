@@ -11,6 +11,9 @@ GameMap.styles.image.bomb.src = "./assets/bomb.svg";
 GameMap.styles.image.flag = new Image;
 GameMap.styles.image.flag.src = "./assets/flag.svg";
 
+GameMap.styles.image.maybe = new Image;
+GameMap.styles.image.maybe.src = "./assets/maybe.svg";
+
 const canvas:HTMLCanvasElement = document.getElementById("screen") as HTMLCanvasElement;
 
 const context:CanvasRenderingContext2D = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -49,9 +52,9 @@ function tick() {
 		}
 
 	}
-	
+
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	
+
 	context.save();
 	context.translate(canvas.width/2, canvas.height/2);
 	context.scale(camera.zoom, camera.zoom);
@@ -60,7 +63,7 @@ function tick() {
 	if (GameMap.canvas) context.drawImage(GameMap.canvas, 0, 0);
 
 	if (GameMap.isPlaying) drawCursor();
-	
+
 	context.restore();
 
 	window.requestAnimationFrame(tick);
@@ -75,7 +78,7 @@ function drawCursor() {
 
 	let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
 	domPoint = domPoint.matrixTransform(cursorTransformation!);
-	
+
 	let point = {
 		x: Math.floor( domPoint.x / GameMap.scale),
 		y: Math.floor( domPoint.y / GameMap.scale)
@@ -104,15 +107,15 @@ function drawCursor() {
 	context.globalAlpha = 1;
 }
 
-export function click(type:"reveal"|"flag") {
-	
+export function click(type:"reveal"|"flag"|"maybe") {
+
 	if (canvas.matches(":hover") == false) return;
-	
+
 	if (GameMap.isPlaying == false) return;
 
 	let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
 	domPoint = domPoint.matrixTransform(cursorTransformation!);
-	
+
 	let point = {
 		x: Math.floor( domPoint.x / GameMap.scale),
 		y: Math.floor( domPoint.y / GameMap.scale)
@@ -145,27 +148,31 @@ export function click(type:"reveal"|"flag") {
 			html.tile_count.innerText = String(GameMap.tiles.length - GameMap.bombTileIndexes.length);
 			html.flag_count.innerText = String(GameMap.bombTileIndexes.length);
 		}
-		
+
 		GameMap.exploreTile(point.x, point.y);
 
-	} else {
+	} else if (type == "flag"){
 		GameMap.toggleFlag(point.x, point.y);
+	} else if (type == "maybe"){
+		GameMap.toggleMaybe(point.x, point.y);
 	}
-	
+
 }
 
 document.addEventListener("click", (e) => {
-	
+
 	if (camera.inputMethod != "mouse") return;
 
-	click("reveal");
+	if (!e.shiftKey) click("reveal");
+	else click("maybe");
 });
 
 document.addEventListener("contextmenu", (e) => {
-	
+
 	if (camera.inputMethod != "mouse") return;
 
-	click("flag");
+	if (!e.shiftKey) click("flag");
+	else click("maybe");
 
 });
 

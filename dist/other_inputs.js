@@ -90,6 +90,9 @@ document.addEventListener("keydown", (e) => {
         case "m":
             click("flag");
             break;
+        case "b":
+            click("maybe");
+            break;
         case "j":
             glideCameraByZoom(-0.25);
             break;

@@ -78,7 +78,7 @@ export class GameMap {
             return;
         let tile = this.tiles[y * this.width + x];
         let colourIndex = (y * this.width + x + y % 2) % 2;
-        if (tile == undefined || tile == "Flag") {
+        if (tile == undefined || tile == "Flag" || tile == "Maybe") {
             this.context.fillStyle = this.styles.colour.unchecked[colourIndex];
         }
         else {
@@ -103,6 +103,11 @@ export class GameMap {
         if (tile == "Flag") {
             let size = this.scale * 0.75;
             this.context.drawImage(this.styles.image.flag, dx - size / 2, dy - size / 2, size, size);
+            return;
+        }
+        else if (tile == "Maybe") {
+            let size = this.scale * 0.5;
+            this.context.drawImage(this.styles.image.maybe, dx - size / 2, dy - size / 2, size, size);
             return;
         }
         else if (typeof tile == "string" && tile.startsWith("Bomb")) {
@@ -138,9 +143,11 @@ export class GameMap {
         this.checkForWin();
         if (this.tiles[index] == "Flag")
             return;
+        if (this.tiles[index] == "Maybe")
+            return;
         if (this.bombTileIndexes.includes(index)) {
             let randomNumber = Math.floor(Math.random() * this.styles.colour.bomb.length);
-            this.tiles[index] = "Bomb" + randomNumber;
+            this.tiles[index] = `Bomb${randomNumber}`;
             this.drawTile(x, y);
             html.gameoverScreen_score.innerText = "~" + (this.tilesDiscovered / this.tiles.length * 100).toFixed(3) + "%";
             html.gameoverScreen.setAttribute("show", "true");
@@ -168,16 +175,20 @@ export class GameMap {
         ];
         let sumOfBombs = 0;
         let sumOfFlags = 0;
+        let hasMaybe = false;
         for (let i = 0; i < neighbourIndexes.length; i++) {
             let neighbourIndex = neighbourIndexes[i];
             if (this.bombTileIndexes.includes(neighbourIndex))
                 sumOfBombs += 1;
-            if (this.tiles[neighbourIndex] == "Flag")
+            let tile = this.tiles[neighbourIndex];
+            if (tile == "Flag")
                 sumOfFlags += 1;
+            if (tile == "Maybe")
+                hasMaybe = true;
         }
         this.tiles[index] = sumOfBombs;
         html.tiles_shown.innerText = this.tilesDiscovered.toString();
-        if (sumOfBombs == 0) {
+        if (sumOfBombs == 0 && hasMaybe == false) {
             for (let i = 0; i < neighbourIndexes.length; i++) {
                 let index = neighbourIndexes[i];
                 let tile = this.tiles[index];
@@ -188,7 +199,7 @@ export class GameMap {
                 this.exploreTile(x, y, true);
             }
         }
-        else if (sumOfBombs == sumOfFlags) {
+        else if (sumOfBombs == sumOfFlags && hasMaybe == false) {
             for (let i = 0; i < neighbourIndexes.length; i++) {
                 let index = neighbourIndexes[i];
                 let tile = this.tiles[index];
@@ -212,7 +223,7 @@ export class GameMap {
         if (x > this.width)
             return;
         let index = y * this.width + x;
-        if (this.tiles[index] == undefined) {
+        if (this.tiles[index] == undefined || this.tiles[index] == "Maybe") {
             this.tiles[index] = "Flag";
             this.flagsUsed += 1;
         }
@@ -222,6 +233,24 @@ export class GameMap {
         }
         html.flags_used.innerText = this.flagsUsed.toString();
         this.checkForWin();
+        this.drawTile(x, y);
+    }
+    static toggleMaybe(x, y) {
+        if (y < 0)
+            return;
+        if (x < 0)
+            return;
+        if (y > this.height)
+            return;
+        if (x > this.width)
+            return;
+        let index = y * this.width + x;
+        if (this.tiles[index] == undefined) {
+            this.tiles[index] = "Maybe";
+        }
+        else if (this.tiles[index] == "Maybe") {
+            this.tiles[index] = undefined;
+        }
         this.drawTile(x, y);
     }
     static getTileFromPos(x, y) {

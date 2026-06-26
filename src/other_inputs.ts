@@ -17,13 +17,13 @@ function glideCameraByBlockOffset(x:number, y:number, c=1) {
 function glideCameraByZoom(desiredZoom:number, step=1) {
 	if (step >= 5) return;
 	camera.zoom += desiredZoom / 4;
-	
+
 	let minZoom = Math.min(
 		(window.innerHeight-100) / (GameMap.height * GameMap.scale),
 		(window.innerWidth-100) / (GameMap.width * GameMap.scale)
 	);
 	let maxZoom = 1;
-	
+
 	camera.zoom = Math.min(camera.zoom, maxZoom);
 	camera.zoom = Math.max(camera.zoom, minZoom);
 
@@ -31,9 +31,9 @@ function glideCameraByZoom(desiredZoom:number, step=1) {
 }
 
 function button_keydown(e:KeyboardEvent) {
-	
+
 	let key = e.key.toLowerCase();
-	
+
 	switch (key) {
 		case "n":
 			GameMap.reset(GameMap.width, GameMap.height);
@@ -60,7 +60,7 @@ document.addEventListener("keydown", (e) => {
 
 	if (GameMap.isPlaying == false) return;
 	if (canvas.matches(":hover") == false) return;
-	
+
 	if (e.repeat) return;
 
 	let key = e.key;
@@ -81,7 +81,7 @@ document.addEventListener("keydown", (e) => {
 	}
 
 	key = key.toLowerCase();
-	
+
 	switch (key) {
 		case "a":
 			glideCameraByBlockOffset(-1, 0);
@@ -110,19 +110,23 @@ document.addEventListener("keydown", (e) => {
 		case "n":
 			click("reveal");
 			break;
-		
+
 		case "m":
 			click("flag");
+			break;
+
+		case "b":
+			click("maybe");
 			break;
 
 		case "j":
 			glideCameraByZoom(-0.25);
 			break;
-		
+
 		case "k":
 			glideCameraByZoom(0.25);
 			break;
-	
+
 		default:
 			break;
 	}

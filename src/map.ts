@@ -182,7 +182,7 @@ export class GameMap {
 
 		let index = y * this.width + x;
 
-		if (this.tiles[index] == undefined) this.tilesDiscovered += 1;
+		if (this.tiles[index] == undefined || this.tiles[index] == "Maybe") this.tilesDiscovered += 1;
 
 		this.checkForWin();
 
@@ -228,40 +228,38 @@ export class GameMap {
 
 		let sumOfBombs = 0;
 		let sumOfFlags = 0;
-		let hasMaybe = false;
 
 		for (let i = 0; i < neighbourIndexes.length; i ++) {
 			let neighbourIndex = neighbourIndexes[i]!;
 			if ( this.bombTileIndexes.includes(neighbourIndex) ) sumOfBombs += 1;
 			let tile = this.tiles[neighbourIndex];
 			if ( tile == "Flag" ) sumOfFlags += 1;
-			if ( tile == "Maybe" ) hasMaybe = true;
 		}
 
 		this.tiles[index] = sumOfBombs;
 
 		html.tiles_shown.innerText = this.tilesDiscovered.toString();
 
-		if (sumOfBombs == 0 && hasMaybe == false) {
+		if (sumOfBombs == 0) {
 
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
 				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
-				if (tile != undefined) continue;
+				if (tile != undefined && tile != "Maybe") continue;
 
 				let y = Math.floor( index / this.width );
 				let x = index % this.width;
 
 				this.exploreTile(x, y, true);
 			}
-		} else if (sumOfBombs == sumOfFlags && hasMaybe == false) {
+		} else if (sumOfBombs == sumOfFlags) {
 
 			for (let i = 0; i < neighbourIndexes.length; i ++) {
 				let index = neighbourIndexes[i]!;
 				let tile = this.tiles[index];
 
-				if (tile != undefined) continue;
+				if (tile != undefined && tile != "Maybe") continue;
 
 				let y = Math.floor( index / this.width );
 				let x = index % this.width;

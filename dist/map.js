@@ -143,8 +143,6 @@ export class GameMap {
         this.checkForWin();
         if (this.tiles[index] == "Flag")
             return;
-        if (this.tiles[index] == "Maybe")
-            return;
         if (this.bombTileIndexes.includes(index)) {
             let randomNumber = Math.floor(Math.random() * this.styles.colour.bomb.length);
             this.tiles[index] = `Bomb${randomNumber}`;

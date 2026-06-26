@@ -187,7 +187,6 @@ export class GameMap {
 		this.checkForWin();
 
 		if ( this.tiles[index] == "Flag" ) return;
-		if ( this.tiles[index] == "Maybe" ) return;
 
 		// If tile is a bomb
 		if ( this.bombTileIndexes.includes(index) ) {

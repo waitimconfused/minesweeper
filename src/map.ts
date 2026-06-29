@@ -197,7 +197,8 @@ export class GameMap {
 
 			this.drawTile(x, y);
 
-			html.gameoverScreen_score.innerText = "~" + (this.tilesDiscovered / this.tiles.length * 100).toFixed(3) + "%";
+			let tileCount = this.tiles.length - this.bombTileIndexes.length;
+			html.gameoverScreen_score.innerText = "~" + (this.tilesDiscovered / tileCount * 100).toFixed(3).replace(/\.?0+$/, "") + "%";
 
 			html.gameoverScreen.setAttribute("show", "true");
 			html.reset.focus();

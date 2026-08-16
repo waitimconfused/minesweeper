@@ -11,6 +11,8 @@ body {
 	top: 0px;
 	left: 0px;
 	z-index: -1000000;
+	width: 100vw;
+	height: 100vh;
 	/* translate: -50% -50%; */
 	/* cursor: crosshair; */
 	/* box-shadow: 0 0 3px 0 black; */

@@ -20,6 +20,23 @@ const context: CanvasRenderingContext2D = canvas.getContext("2d") as CanvasRende
 
 const playAgainButton: HTMLButtonElement = document.getElementById("again") as HTMLButtonElement;
 
+type MapSection = {
+	canvas: HTMLCanvasElement;
+	context: CanvasRenderingContext2D;
+	offset: { x: number, y: number };
+}
+
+const cachedSection: MapSection = {
+	canvas: document.createElement("canvas"),
+	context: canvas.getContext("2d")!, // Yes, it's the wrong context. It's fixed immediately though
+	offset: { x: 0, y: 0 }
+};
+cachedSection.context = cachedSection.canvas.getContext("2d")!;
+
+export const canvasTransformations = {
+	cameraToWorld: new DOMMatrix,
+	worldToCamera: new DOMMatrix
+}
 
 GameMap.scale = 100;
 
@@ -31,31 +48,28 @@ GameMap.reset(
 
 var cursorTransformation: DOMMatrix | null = null;
 
+var timestamp = performance.now();
+var delta = 0;
+var fps = 0;
+var previousCamera = { x: 0, y: 0, zoom: 0 };
 function tick() {
 
-	if (canvas.width != window.innerWidth) {
-		canvas.width = window.innerWidth;
-	}
-	if (canvas.height != window.innerHeight) {
-		canvas.height = window.innerHeight;
-	}
+	let time = performance.now();
+	delta = time - timestamp;
 
-	if (GameMap.isPlaying == false) {
+	fps = 1000 / delta;
 
-		let targetZoom = Math.min(
-			(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
-			(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
-		);
-		let targetX = (GameMap.width * GameMap.scale) / -2;
-		let targetY = (GameMap.height * GameMap.scale) / -2;
+	let scaling = window.devicePixelRatio ?? 1;
+	let width = roundToNearest(canvas.clientWidth * scaling, 2);
+	let height = roundToNearest(canvas.clientHeight * scaling, 2);
 
-		if (camera.enabled == false) {
-			let factor = 1 / 16;
-			camera.zoom = camera.zoom + (targetZoom - camera.zoom) * factor;
-			camera.x = Math.round(camera.x + (targetX - camera.x) * factor);
-			camera.y = Math.round(camera.y + (targetY - camera.y) * factor);
-		}
+	if (canvas.width != width) canvas.width = width;
+	if (canvas.height != height) canvas.height = height;
 
+	if (camera.inputMethod == "mouse" || GameMap.isPlaying == false) {
+		canvas.style.setProperty("cursor", "");
+	} else {
+		canvas.style.setProperty("cursor", "none");
 	}
 
 	context.clearRect(0, 0, canvas.width, canvas.height);
@@ -63,14 +77,71 @@ function tick() {
 	context.save();
 	context.translate(canvas.width / 2, canvas.height / 2);
 	context.scale(camera.zoom, camera.zoom);
-	context.translate(camera.x, camera.y);
+	context.translate(Math.round(camera.x), Math.round(camera.y));
 
-	if (GameMap.canvas) context.drawImage(GameMap.canvas, 0, 0);
+	canvasTransformations.worldToCamera = context.getTransform();
+	canvasTransformations.cameraToWorld = canvasTransformations.worldToCamera.inverse();
+
+	let topLeftPoint = new DOMPoint(0, 0);
+	topLeftPoint = topLeftPoint.matrixTransform(canvasTransformations.cameraToWorld);
+
+	let bottomRightPoint = new DOMPoint(canvas.width, canvas.height);
+	bottomRightPoint = bottomRightPoint.matrixTransform(canvasTransformations.cameraToWorld);
+
+	let sectionIsRevealingSpace = (
+		topLeftPoint.x < cachedSection.offset.x ||
+		bottomRightPoint.x > cachedSection.offset.x + cachedSection.canvas.width / camera.zoom ||
+
+		topLeftPoint.y < cachedSection.offset.y ||
+		bottomRightPoint.y > cachedSection.offset.y + cachedSection.canvas.height / camera.zoom
+	);
+
+	let cameraHasMoved = (
+		Math.abs(previousCamera.x - camera.x) > (GameMap.scale / 4) * camera.zoom ||
+		Math.abs(previousCamera.y - camera.y) > (GameMap.scale / 4) * camera.zoom
+	);
+
+	if (
+		(sectionIsRevealingSpace && cameraHasMoved) ||
+		camera.zoom != previousCamera.zoom
+	) {
+		reloadSection();
+		if (cameraHasMoved) {
+			previousCamera.x = camera.x;
+			previousCamera.y = camera.y;
+		}
+		previousCamera.zoom = camera.zoom;
+	}
+
+
+
+	if (cachedSection.canvas.width > 0 && cachedSection.canvas.height > 0) {
+		context.globalCompositeOperation = "destination-over";
+		context.drawImage(
+			cachedSection.canvas,
+
+			cachedSection.offset.x,
+			cachedSection.offset.y,
+
+			cachedSection.canvas.width / camera.zoom,
+			cachedSection.canvas.height / camera.zoom
+		);
+		context.globalCompositeOperation = "source-over";
+	}
+
 
 	if (GameMap.isPlaying) drawCursor();
 
 	context.restore();
 
+	// context.fillStyle = "black";
+	// context.font = "16px monospace";
+	// context.textAlign = "left";
+	// context.textBaseline = "top";
+	// context.fillText(`DELTA: ${delta} ms`, 16, 16);
+	// context.fillText(`FPS: ${roundToNearest(1000 / delta, 10)}`, 16, 32);
+
+	timestamp = performance.now();
 	window.requestAnimationFrame(tick);
 }
 
@@ -78,11 +149,54 @@ tick();
 
 
 
+function reloadSection() {
+
+	let topLeftPoint = new DOMPoint(0, 0);
+	topLeftPoint = topLeftPoint.matrixTransform(canvasTransformations.cameraToWorld);
+
+	let bottomRightPoint = new DOMPoint(canvas.width, canvas.height);
+	bottomRightPoint = bottomRightPoint.matrixTransform(canvasTransformations.cameraToWorld);
+
+	let padding = 3;
+
+	let start = {
+		x: Math.max(Math.floor(topLeftPoint.x / GameMap.scale), 0) - padding,
+		y: Math.max(Math.floor(topLeftPoint.y / GameMap.scale), 0) - padding
+	};
+
+	let end = {
+		x: Math.min(Math.floor(bottomRightPoint.x / GameMap.scale), GameMap.width - 1) + 1 + padding * 2,
+		y: Math.min(Math.floor(bottomRightPoint.y / GameMap.scale), GameMap.height - 1) + 1 + padding * 2
+	};
+
+	cachedSection.canvas.width = Math.ceil((end.x - start.x) * GameMap.scale * camera.zoom);
+	cachedSection.canvas.height = Math.ceil((end.y - start.y) * GameMap.scale * camera.zoom);
+
+
+	if (cachedSection.canvas.width <= 0) return;
+	if (cachedSection.canvas.height <= 0) return;
+
+	cachedSection.offset.x = start.x * GameMap.scale;
+	cachedSection.offset.y = start.y * GameMap.scale;
+
+	cachedSection.context.save();
+	cachedSection.context.scale(camera.zoom, camera.zoom);
+	cachedSection.context.translate(-start.x * GameMap.scale, -start.y * GameMap.scale);
+
+	for (let x = start.x; x <= end.x + 1; x++) {
+		for (let y = start.y; y <= end.y + 1; y++) {
+			GameMap.drawTile(x, y, cachedSection.context);
+		}
+	}
+
+	cachedSection.context.restore();
+}
+
 function drawCursor() {
 	cursorTransformation = context.getTransform().inverse();
 
 	let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
-	domPoint = domPoint.matrixTransform(cursorTransformation!);
+	domPoint = domPoint.matrixTransform(canvasTransformations.cameraToWorld);
 
 	let point = {
 		x: Math.floor(domPoint.x / GameMap.scale),
@@ -110,6 +224,7 @@ function drawCursor() {
 	context.stroke();
 
 	context.globalAlpha = 1;
+
 }
 
 export function click(type: "reveal" | "flag" | "maybe") {
@@ -155,13 +270,19 @@ export function click(type: "reveal" | "flag" | "maybe") {
 		}
 
 		GameMap.exploreTile(point.x, point.y);
+		reloadSection();
 
 	} else if (type == "flag") {
 		GameMap.toggleFlag(point.x, point.y);
+		reloadSection();
 	} else if (type == "maybe") {
 		GameMap.toggleMaybe(point.x, point.y);
+		reloadSection();
 	}
 
+}
+function roundToNearest(value: number, interval: number): number {
+	return Math.floor(value / interval) * interval;
 }
 
 document.addEventListener("click", (e) => {

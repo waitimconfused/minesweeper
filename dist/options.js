@@ -23,9 +23,6 @@ html.menuToggle.addEventListener("click", toggleMenu);
 html.newGame.addEventListener("click", () => {
     let size = html.sizeInput.valueAsNumber || 16;
     size = Math.max(size, 8);
-    if (!confirm("Warning: Map sizes greater than 64 are not suggested.")) {
-        size = 64;
-    }
     localStorage.setItem("minesweeper-size", `${size}x${size}`);
     GameMap.reset(size, size);
     html.menu.removeAttribute("show");

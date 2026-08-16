@@ -32,10 +32,6 @@ export class GameMap {
 	public static bombCount: number = 0;
 	public static bombTileIndexes: number[] = [];
 
-	public static canvas: HTMLCanvasElement | null = null;
-
-	public static context: CanvasRenderingContext2D | null = null;
-
 	public static isPlaying: boolean = false;
 
 	public static styles = {
@@ -60,6 +56,10 @@ export class GameMap {
 		this.width = width;
 		this.height = height;
 
+		let isGliding = true;
+
+		if (this.tiles.length == 0) isGliding = false;
+
 		this.tiles = new Array(width * height);
 
 		this.tilesDiscovered = 0;
@@ -69,11 +69,6 @@ export class GameMap {
 
 		html.gameoverScreen.removeAttribute("show");
 		html.winScreen.removeAttribute("show");
-
-		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
-		this.canvas.width = width * this.scale;
-		this.canvas.height = height * this.scale;
-		this.context = this.canvas.getContext("2d");
 
 		let bombCount = Math.floor(this.width * this.height / 4);
 
@@ -92,86 +87,113 @@ export class GameMap {
 		html.flag_count.innerText = "?";
 		html.flags_used.innerText = "0";
 
-		this.drawMap();
+		// this.drawMap();
 
+		let zoom = 1;
+		let x = (this.width * this.scale) / -2;
+		let y = (this.width * this.scale) / -2;
+
+		if (isGliding) {
+			let zoomOffset = zoom - camera.zoom;
+			camera.glideByZoom(zoomOffset);
+			
+			camera.glideByOffset(
+				x - camera.x,
+				y - camera.y
+			)
+		} else {
+			camera.zoom = zoom;
+			camera.x = x;
+			camera.y = y;
+		}
+		
+		
 		this.isPlaying = true;
-		camera.zoom = 1;
-		camera.x = (this.width * this.scale) / -2;
-		camera.y = (this.height * this.scale) / -2;
 		camera.enabled = true;
 
 	}
 
-	public static drawMap() {
+	public static drawMap(context: CanvasRenderingContext2D) {
 
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
-				this.drawTile(x, y);
+				this.drawTile(x, y, context);
 			}
 		}
 
 	}
 
-	public static drawTile(x: number, y: number) {
+	public static drawTile(x: number, y: number, context: CanvasRenderingContext2D) {
 
-		if (!this.context) return;
+		if (!context) return;
+
+		if (x < 0) return;
+		if (y < 0) return;
+
+		if (x > this.width-1) return;
+		if (y > this.height-1) return;
 
 		let tile = this.tiles[y * this.width + x];
 
 		let colourIndex = (x + y % 2) % 2;
 
 		if (tile == undefined || tile == "Flag" || tile == "Maybe") {
-			this.context.fillStyle = this.styles.colour.unchecked[colourIndex]!;
+			context.fillStyle = this.styles.colour.unchecked[colourIndex]!;
 		} else {
-			this.context.fillStyle = this.styles.colour.safe[colourIndex]!;
+			context.fillStyle = this.styles.colour.safe[colourIndex]!;
 		}
 
-		this.context.beginPath();
-		this.context.rect(x * this.scale, y * this.scale, this.scale, this.scale);
-		this.context.closePath();
-		this.context.fill();
+		context.save();
+		context.scale(this.scale, this.scale);
+		context.translate(x, y);
+
+		context.beginPath();
+		context.rect(0, 0, 1, 1);
+		context.closePath();
+		context.fill();
+
 
 		// If current tile is a bomb
 		if (typeof tile == "string" && tile.startsWith("Bomb")) {
 			let index = Number(tile.replace("Bomb", ""));
-			this.context.fillStyle = this.styles.colour.bomb[index]!;
-			this.context.beginPath();
-			let padding = this.scale / 10;
-			let radius = this.scale / 10;
-			this.context.roundRect(x * this.scale + padding / 2, y * this.scale + padding / 2, this.scale - padding, this.scale - padding, radius);
-			this.context.closePath();
-			this.context.fill();
+			context.fillStyle = this.styles.colour.bomb[index]!;
+			context.beginPath();
+			let padding = 1 / 10;
+			let radius = 1 / 10;
+			context.roundRect(padding / 2, padding / 2, 1 - padding, 1 - padding, radius);
+			context.closePath();
+			context.fill();
 		}
-		let dx = x * this.scale + this.scale / 2;
-		let dy = y * this.scale + this.scale / 2;
+
+		let offset = 1 / 2;
+		context.translate(offset, offset);
 
 		if (tile == "Flag") {
-			let size = this.scale * 0.75;
-			this.context.drawImage(this.styles.image.flag, dx - size / 2, dy - size / 2, size, size);
-			return;
-
-		} else if (tile == "Maybe") {
-			let size = this.scale * 0.5;
-			this.context.drawImage(this.styles.image.maybe, dx - size / 2, dy - size / 2, size, size);
-			return;
-
-		} else if (typeof tile == "string" && tile.startsWith("Bomb")) {
-			let size = this.scale * 0.75;
-			this.context.drawImage(this.styles.image.bomb, dx - size / 2, dy - size / 2, size, size);
-			return;
+			let size = 3 / 4;
+			context.drawImage(this.styles.image.flag, -size / 2, -size / 2, size, size);
 		}
-		if (tile == 0) return;
-		if (tile == undefined) return;
+		else if (tile == "Maybe") {
+			let size = 1 / 2;
+			context.drawImage(this.styles.image.maybe, -size / 2, -size / 2, size, size);
+		}
+		else if (typeof tile == "string" && tile.startsWith("Bomb")) {
+			let size = 3 / 4;
+			context.drawImage(this.styles.image.bomb, -size / 2, -size / 2, size, size);
+		}
+		else if (typeof tile == "number" && tile != 0) {
+			context.scale(1 / this.scale, 1 / this.scale);
+			context.fillStyle = "black";
+			context.lineWidth = 1;
+			context.font = "600 24px poppins"
+			context.textAlign = "center";
+			context.textBaseline = "middle";
+			context.fillText(tile.toString(), offset, offset);
+		}
 
-		this.context.fillStyle = "black";
-		this.context.lineWidth = 1;
-		this.context.font = "600 24px poppins"
-		this.context.textAlign = "center";
-		this.context.textBaseline = "middle";
-		this.context.fillText(tile.toString(), dx, dy);
+		context.restore();
 	}
 
-	public static exploreTile(x: number, y: number, forceUpdate = false) {
+	public static exploreTile(x: number, y: number, context?: CanvasRenderingContext2D, forceUpdate = false) {
 
 		if (this.isPlaying == false && forceUpdate == false) return;
 
@@ -195,7 +217,7 @@ export class GameMap {
 
 			this.tiles[index] = `Bomb${randomNumber}`;
 
-			this.drawTile(x, y);
+			if (context) this.drawTile(x, y, context);
 
 			let tileCount = this.tiles.length - this.bombTileIndexes.length;
 			html.gameoverScreen_score.innerText = "~" + (this.tilesDiscovered / tileCount * 100).toFixed(3).replace(/\.?0+$/, "") + "%";
@@ -205,6 +227,8 @@ export class GameMap {
 
 			this.isPlaying = false;
 			camera.enabled = false;
+
+			camera.glideByZoom(-0.5);
 
 			return;
 
@@ -252,7 +276,7 @@ export class GameMap {
 				let y = Math.floor(index / this.width);
 				let x = index % this.width;
 
-				this.exploreTile(x, y, true);
+				this.exploreTile(x, y, context, true);
 			}
 		} else if (sumOfBombs == sumOfFlags) {
 
@@ -265,17 +289,15 @@ export class GameMap {
 				let y = Math.floor(index / this.width);
 				let x = index % this.width;
 
-				this.exploreTile(x, y, true);
+				this.exploreTile(x, y, context, true);
 			}
 		}
 
-		this.drawTile(x, y);
-
-		return false;
+		if (context) this.drawTile(x, y, context);
 
 	}
 
-	public static toggleFlag(x: number, y: number) {
+	public static toggleFlag(x: number, y: number, context?: CanvasRenderingContext2D) {
 		if (y < 0) return;
 		if (x < 0) return;
 		if (y > this.height) return;
@@ -294,11 +316,11 @@ export class GameMap {
 		html.flags_used.innerText = this.flagsUsed.toString();
 		this.checkForWin();
 
-		this.drawTile(x, y);
+		if (context) this.drawTile(x, y, context);
 
 	}
 
-	public static toggleMaybe(x: number, y: number) {
+	public static toggleMaybe(x: number, y: number, context?: CanvasRenderingContext2D) {
 		if (y < 0) return;
 		if (x < 0) return;
 		if (y > this.height) return;
@@ -312,7 +334,7 @@ export class GameMap {
 			this.tiles[index] = undefined;
 		}
 
-		this.drawTile(x, y);
+		if (context) this.drawTile(x, y, context);
 
 	}
 
@@ -340,6 +362,8 @@ export class GameMap {
 
 		this.isPlaying = false;
 		camera.enabled = false;
+		
+		camera.glideByZoom(-0.5);
 		return true;
 	}
 

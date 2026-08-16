@@ -9,7 +9,10 @@ type CameraStorage = {
 
 	x: number,
 	y: number,
+
 	zoom: number,
+	minZoom: number,
+	maxZoom: number
 
 	mouse: { x: number, y: number },
 
@@ -20,26 +23,23 @@ type CameraStorage = {
 	},
 }
 
-const camera: CameraStorage & {
-	glideByBlockOffset: (x: number, y: number, c?: number) => void,
-	glideByZoom: (zoomOffset: number, step?: number) => void
-} = {
+class camera {
 
-	enabled: false,
+	public static enabled: boolean = false;
 
-	/** @type { "mouse" | "keyboard" } */
-	inputMethod: "mouse",
+	public static inputMethod: "mouse" | "keyboard" = "mouse";
 
-	x: 0,
-	y: 0,
-	zoom: 1,
+	public static x: number = 0;
+	public static y: number = 0;
 
-	mouse: {
+	private static _zoom: number = 1;
+
+	public static mouse = {
 		x: 0,
 		y: 0,
-	},
+	};
 
-	buttons: {
+	public static buttons = {
 		left: false,
 		right: false,
 		wheel: false,
@@ -49,29 +49,57 @@ const camera: CameraStorage & {
 		ctrl: false,
 		shift: false,
 		alt: false
-	},
+	};
 
-	glideByBlockOffset(x: number, y: number, step = 1) {
-		if (step >= 5) return;
-		camera.x -= x * GameMap.scale / 4;
-		camera.y -= y * GameMap.scale / 4;
-		setTimeout(() => this.glideByBlockOffset(x, y, step + 1), 20);
-	},
+	private static _target: { position?: { x: number, y: number }, zoom?: number } = {
+		position: undefined,
+		zoom: undefined
+	};
 
-	glideByZoom(zoomOffset: number, step = 1) {
-		if (step >= 5) return;
-		camera.zoom += zoomOffset / 4;
+	public static get zoom(): number {
+		return this._zoom;
+	}
 
+	public static set zoom(value: number) {
+		value = Math.min(value, this.maxZoom);
+		value = Math.max(value, this.minZoom);
+		this._zoom = value;
+	}
+
+	public static get minZoom() {
 		let minZoom = Math.min(
 			(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
 			(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
 		);
-		let maxZoom = 1;
+		return minZoom;
+	}
+	public static get maxZoom() {
+		return 1;
+	}
 
-		camera.zoom = Math.min(camera.zoom, maxZoom);
-		camera.zoom = Math.max(camera.zoom, minZoom);
+	public static glideByOffset(x: number, y: number, step = 0) {
+		if (step >= 4) return;
+
+		this.x += x / 4;
+		this.y += y / 4;
+
+		setTimeout(() => this.glideByOffset(x, y, step + 1), 20);
+	}
+
+	public static glideByBlockOffset(x: number, y: number) {
+		this.glideByOffset(-x * GameMap.scale, -y * GameMap.scale);
+	}
+
+	public static glideByZoom(zoomOffset: number, step = 0) {
+		if (step >= 4) return;
+
+		camera.zoom += zoomOffset / 4;
+
+		camera.zoom = Math.min(camera.zoom, camera.maxZoom);
+		camera.zoom = Math.max(camera.zoom, camera.minZoom);
 
 		setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
+
 	}
 };
 export default camera;
@@ -121,7 +149,7 @@ function scrollEventCallback(e: WheelEvent | KeyboardEvent) {
 
 	if (camera.enabled == false) return;
 
-	if (e instanceof WheelEvent) {
+	if (e instanceof WheelEvent && camera.inputMethod == "mouse") {
 		e.preventDefault();
 		if (e.ctrlKey) {
 			camera.zoom -= e.deltaY * camera.zoom / 200;
@@ -132,29 +160,29 @@ function scrollEventCallback(e: WheelEvent | KeyboardEvent) {
 	} else if (e instanceof KeyboardEvent) {
 		if (!e.ctrlKey) return;
 
-		let scale = null;
+		let isScaling = false;
 
-		if (["+", "="].includes(e.key)) scale = 1;
-		if (["-", "_"].includes(e.key)) scale = -1;
-		if (["0"].includes(e.key)) scale = 0.0;
+		if (e.key == "+" || e.key == "=") {
+			isScaling = true;
+			camera.glideByZoom(0.25);
 
-		if (scale != null) e.preventDefault(); else return;
+		} else if (e.key == "-" || e.key == "_") {
+			isScaling = true;
+			camera.glideByZoom(-0.25);
+
+		} else if (e.key == "0") {
+			isScaling = true;
+			let zoomOffset = 1 - camera.zoom;
+			camera.glideByZoom(zoomOffset);
+		}
+
+		if (isScaling) e.preventDefault(); else return;
 		if (e.repeat) return;
 
-		camera.zoom += scale;
-		if (e.key == "0") camera.zoom = 1;
-	} else {
-		throw new Error("The function scrollEventCallback requires a parameter of type WheelEvent or KeyboardEvent");
 	}
 
-	let minZoom = Math.min(
-		(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
-		(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
-	);
-	let maxZoom = 1;
-
-	camera.zoom = Math.min(camera.zoom, maxZoom);
-	camera.zoom = Math.max(camera.zoom, minZoom);
+	camera.zoom = Math.min(camera.zoom, camera.maxZoom);
+	camera.zoom = Math.max(camera.zoom, camera.minZoom);
 
 }
 

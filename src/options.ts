@@ -32,10 +32,6 @@ html.newGame.addEventListener("click", () => {
 
 	size = Math.max(size, 8);
 
-	if ( !confirm("Warning: Map sizes greater than 64 are not suggested.") ) {
-		size = 64;
-	}
-
 	localStorage.setItem("minesweeper-size", `${size}x${size}`);
 
 	GameMap.reset(size, size);

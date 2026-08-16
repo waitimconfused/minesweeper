@@ -1,5 +1,5 @@
 import camera from "./camera.js";
-import { click } from "./index.js";
+import { canvasTransformations, click } from "./index.js";
 import { GameMap } from "./map.js";
 
 const reset: HTMLButtonElement = document.getElementById("reset") as HTMLButtonElement;
@@ -33,11 +33,11 @@ document.addEventListener("keydown", (e) => {
 
 	if (e.target != document.body) return;
 
-	camera.inputMethod = "keyboard";
-
 	if (GameMap.isPlaying == false) return;
 	if (canvas.matches(":hover") == false) return;
 
+	camera.inputMethod = "keyboard";
+	
 	if (e.repeat) return;
 
 	let key = e.key;
@@ -59,29 +59,24 @@ document.addEventListener("keydown", (e) => {
 
 	key = key.toLowerCase();
 
+	let cameraPoint = new DOMPoint(canvas.width/2, canvas.height/2).matrixTransform(canvasTransformations.cameraToWorld);
+	let offsetPoint = DOMPoint.fromPoint(cameraPoint);
+	
 	switch (key) {
 		case "a":
-			camera.glideByBlockOffset(-1, 0);
-			camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
-			camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
+			offsetPoint.x += GameMap.scale;
 			break;
 
 		case "d":
-			camera.glideByBlockOffset(1, 0);
-			camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
-			camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
+			offsetPoint.x -= GameMap.scale;
 			break;
 
 		case "w":
-			camera.glideByBlockOffset(0, -1);
-			camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
-			camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
+			offsetPoint.y += GameMap.scale;
 			break;
 
 		case "s":
-			camera.glideByBlockOffset(0, 1);
-			camera.mouse.x = window.innerWidth / 2 - GameMap.scale * camera.zoom / 2;
-			camera.mouse.y = window.innerHeight / 2 - GameMap.scale * camera.zoom / 2;
+			offsetPoint.y -= GameMap.scale;
 			break;
 
 		case "n":
@@ -107,5 +102,15 @@ document.addEventListener("keydown", (e) => {
 		default:
 			break;
 	}
+
+	let difference = {
+		x: offsetPoint.x - cameraPoint.x,
+		y: offsetPoint.y - cameraPoint.y
+	}
+
+	camera.mouse.x = canvas.width / 2;
+	camera.mouse.y = canvas.height / 2;
+
+	camera.glideByOffset(difference.x, difference.y);
 
 });

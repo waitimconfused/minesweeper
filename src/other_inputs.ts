@@ -1,6 +1,7 @@
 import camera from "./camera.js";
-import { canvasTransformations, click } from "./index.js";
+import { canvasTransformations } from "./index.js";
 import { GameMap } from "./map.js";
+import * as cursor from "./cursor.js";
 
 const reset: HTMLButtonElement = document.getElementById("reset") as HTMLButtonElement;
 const playAgain: HTMLButtonElement = document.getElementById("again") as HTMLButtonElement;
@@ -80,15 +81,15 @@ document.addEventListener("keydown", (e) => {
 			break;
 
 		case "n":
-			click("reveal");
+			cursor.click("reveal");
 			break;
 
 		case "m":
-			click("flag");
+			cursor.click("flag");
 			break;
 
 		case "b":
-			click("maybe");
+			cursor.click("maybe");
 			break;
 
 		case "j":

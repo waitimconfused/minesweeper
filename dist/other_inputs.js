@@ -1,6 +1,7 @@
 import camera from "./camera.js";
-import { canvasTransformations, click } from "./index.js";
+import { canvasTransformations } from "./index.js";
 import { GameMap } from "./map.js";
+import * as cursor from "./cursor.js";
 const reset = document.getElementById("reset");
 const playAgain = document.getElementById("again");
 const canvas = document.getElementById("screen");
@@ -62,13 +63,13 @@ document.addEventListener("keydown", (e) => {
             offsetPoint.y -= GameMap.scale;
             break;
         case "n":
-            click("reveal");
+            cursor.click("reveal");
             break;
         case "m":
-            click("flag");
+            cursor.click("flag");
             break;
         case "b":
-            click("maybe");
+            cursor.click("maybe");
             break;
         case "j":
             camera.glideByZoom(-0.25);

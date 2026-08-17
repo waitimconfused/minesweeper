@@ -2,23 +2,23 @@ import * as map from "./map.js";
 
 type mouseButtons = "left" | "right" | "wheel" | "back" | "forward" | "eraser";
 
-class camera {
+var actualZoom = 1;
 
-	public static enabled: boolean = false;
+const camera = {
 
-	public static inputMethod: "mouse" | "keyboard" = "mouse";
+	enabled: false,
 
-	public static x: number = 0;
-	public static y: number = 0;
+	inputMethod: "mouse" as "mouse" | "keyboard",
 
-	private static _zoom: number = 1;
+	x: 0,
+	y: 0,
 
-	public static mouse = {
+	mouse: {
 		x: 0,
 		y: 0,
-	};
+	},
 
-	public static buttons = {
+	buttons: {
 		left: false,
 		right: false,
 		wheel: false,
@@ -28,49 +28,50 @@ class camera {
 		ctrl: false,
 		shift: false,
 		alt: false
-	};
+	},
 
-	public static get zoom(): number {
-		return this._zoom;
-	}
+	get zoom(): number {
+		return actualZoom;
+	},
 
-	public static set zoom(value: number) {
+	set zoom(value: number) {
 		value = Math.min(value, this.maxZoom);
 		value = Math.max(value, this.minZoom);
-		this._zoom = value;
-	}
+		actualZoom = value;
+	},
 
-	public static get minZoom() {
+	get minZoom() {
 		let minZoom = Math.min(
 			(window.innerHeight - 100) / (map.height * map.option.scale),
 			(window.innerWidth - 100) / (map.width * map.option.scale)
 		);
 		return minZoom;
-	}
-	public static get maxZoom() {
-		return 1;
-	}
+	},
 
-	public static glideByOffset(x: number, y: number, step = 0) {
+	get maxZoom() {
+		return 1;
+	},
+
+	glideByOffset(x: number, y: number, step = 0) {
 		if (step >= 4) return;
 
 		this.x += x / 4;
 		this.y += y / 4;
 
 		setTimeout(() => this.glideByOffset(x, y, step + 1), 20);
-	}
+	},
 
-	public static glideByBlockOffset(x: number, y: number) {
+	glideByBlockOffset(x: number, y: number) {
 		this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
-	}
+	},
 
-	public static glideByZoom(zoomOffset: number, step = 0) {
+	glideByZoom(zoomOffset: number, step = 0) {
 		if (step >= 4) return;
 
-		camera.zoom += zoomOffset / 4;
+		this.zoom += zoomOffset / 4;
 
-		camera.zoom = Math.min(camera.zoom, camera.maxZoom);
-		camera.zoom = Math.max(camera.zoom, camera.minZoom);
+		this.zoom = Math.min(this.zoom, this.maxZoom);
+		this.zoom = Math.max(this.zoom, this.minZoom);
 
 		setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
 

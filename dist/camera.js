@@ -1,4 +1,4 @@
-import { GameMap } from "./map.js";
+import * as map from "./map.js";
 class camera {
     static enabled = false;
     static inputMethod = "mouse";
@@ -20,10 +20,6 @@ class camera {
         shift: false,
         alt: false
     };
-    static _target = {
-        position: undefined,
-        zoom: undefined
-    };
     static get zoom() {
         return this._zoom;
     }
@@ -33,7 +29,7 @@ class camera {
         this._zoom = value;
     }
     static get minZoom() {
-        let minZoom = Math.min((window.innerHeight - 100) / (GameMap.height * GameMap.scale), (window.innerWidth - 100) / (GameMap.width * GameMap.scale));
+        let minZoom = Math.min((window.innerHeight - 100) / (map.height * map.option.scale), (window.innerWidth - 100) / (map.width * map.option.scale));
         return minZoom;
     }
     static get maxZoom() {
@@ -47,7 +43,7 @@ class camera {
         setTimeout(() => this.glideByOffset(x, y, step + 1), 20);
     }
     static glideByBlockOffset(x, y) {
-        this.glideByOffset(-x * GameMap.scale, -y * GameMap.scale);
+        this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
     }
     static glideByZoom(zoomOffset, step = 0) {
         if (step >= 4)

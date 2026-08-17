@@ -1,6 +1,6 @@
 import camera from "./camera.js";
 import { canvasTransformations } from "./index.js";
-import { GameMap } from "./map.js";
+import * as map from "./map.js";
 import * as cursor from "./cursor.js";
 
 const reset: HTMLButtonElement = document.getElementById("reset") as HTMLButtonElement;
@@ -14,13 +14,13 @@ function button_keydown(e: KeyboardEvent) {
 
 	switch (key) {
 		case "n":
-			GameMap.reset(GameMap.width, GameMap.height);
+			map.reset(map.width, map.height);
 			break;
 		case "m":
-			GameMap.reset(GameMap.width, GameMap.height);
+			map.reset(map.width, map.height);
 			break;
 		case "space":
-			GameMap.reset(GameMap.width, GameMap.height);
+			map.reset(map.width, map.height);
 			break;
 	}
 
@@ -34,7 +34,7 @@ document.addEventListener("keydown", (e) => {
 
 	if (e.target != document.body) return;
 
-	if (GameMap.isPlaying == false) return;
+	if (map.option.is_playing == false) return;
 	if (canvas.matches(":hover") == false) return;
 
 	camera.inputMethod = "keyboard";
@@ -65,19 +65,19 @@ document.addEventListener("keydown", (e) => {
 	
 	switch (key) {
 		case "a":
-			offsetPoint.x += GameMap.scale;
+			offsetPoint.x += map.option.scale;
 			break;
 
 		case "d":
-			offsetPoint.x -= GameMap.scale;
+			offsetPoint.x -= map.option.scale;
 			break;
 
 		case "w":
-			offsetPoint.y += GameMap.scale;
+			offsetPoint.y += map.option.scale;
 			break;
 
 		case "s":
-			offsetPoint.y -= GameMap.scale;
+			offsetPoint.y -= map.option.scale;
 			break;
 
 		case "n":

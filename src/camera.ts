@@ -1,27 +1,6 @@
-import { GameMap } from "./map.js";
+import * as map from "./map.js";
 
 type mouseButtons = "left" | "right" | "wheel" | "back" | "forward" | "eraser";
-
-type CameraStorage = {
-	enabled: boolean,
-
-	inputMethod: "mouse" | "keyboard",
-
-	x: number,
-	y: number,
-
-	zoom: number,
-	minZoom: number,
-	maxZoom: number
-
-	mouse: { x: number, y: number },
-
-	buttons: { [x in mouseButtons]: boolean } & {
-		ctrl: boolean,
-		shift: boolean,
-		alt: boolean
-	},
-}
 
 class camera {
 
@@ -51,11 +30,6 @@ class camera {
 		alt: false
 	};
 
-	private static _target: { position?: { x: number, y: number }, zoom?: number } = {
-		position: undefined,
-		zoom: undefined
-	};
-
 	public static get zoom(): number {
 		return this._zoom;
 	}
@@ -68,8 +42,8 @@ class camera {
 
 	public static get minZoom() {
 		let minZoom = Math.min(
-			(window.innerHeight - 100) / (GameMap.height * GameMap.scale),
-			(window.innerWidth - 100) / (GameMap.width * GameMap.scale)
+			(window.innerHeight - 100) / (map.height * map.option.scale),
+			(window.innerWidth - 100) / (map.width * map.option.scale)
 		);
 		return minZoom;
 	}
@@ -87,7 +61,7 @@ class camera {
 	}
 
 	public static glideByBlockOffset(x: number, y: number) {
-		this.glideByOffset(-x * GameMap.scale, -y * GameMap.scale);
+		this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
 	}
 
 	public static glideByZoom(zoomOffset: number, step = 0) {

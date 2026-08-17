@@ -1,18 +1,26 @@
-import { GameMap } from "./map.js";
+import * as map from "./map.js";
 
 
-const html = {
+const inputs = {
 	menu: document.getElementById("options") as HTMLElement,
 	menuToggle: document.getElementById("options-toggle") as HTMLImageElement,
+	newGame: document.getElementById("opt-reset") as HTMLButtonElement,
+
 	sizeInput: document.getElementById("opt-size") as HTMLInputElement,
-	newGame: document.getElementById("opt-reset") as HTMLButtonElement
+	autoclear: document.getElementById("opt-autoclear") as HTMLInputElement
 }
 
 function toggleMenu() {
-	let state: boolean = html.menu.hasAttribute("show");
+	let state: boolean = inputs.menu.hasAttribute("show");
 
-	if (state == false) html.menu.setAttribute("show", "");
-	else html.menu.removeAttribute("show");
+	if (state == false) {
+		inputs.menu.setAttribute("show", "");
+		map.option.is_playing = false;
+	}
+	else {
+		inputs.menu.removeAttribute("show");
+		map.option.is_playing = true;
+	}
 }
 
 document.addEventListener("keyup", (e: KeyboardEvent) => {
@@ -24,17 +32,29 @@ document.addEventListener("keyup", (e: KeyboardEvent) => {
 
 });
 
-html.menuToggle.addEventListener("click", toggleMenu);
+inputs.menuToggle.addEventListener("click", toggleMenu);
 
-html.newGame.addEventListener("click", () => {
+inputs.newGame.addEventListener("click", () => {
 
-	let size = html.sizeInput.valueAsNumber || 16;
+	let size = inputs.sizeInput.valueAsNumber || 16;
 
 	size = Math.max(size, 8);
 
-	localStorage.setItem("minesweeper-size", `${size}x${size}`);
+	localStorage.setItem("option-map-size", `${size}x${size}`);
 
-	GameMap.reset(size, size);
-	html.menu.removeAttribute("show");
+	map.reset(size, size);
+	inputs.menu.removeAttribute("show");
 
 });
+
+inputs.autoclear.addEventListener("change", () => {
+
+	let state = inputs.autoclear.checked;
+	map.option.autoclear = state;
+
+	localStorage.setItem("option-autoclear", String(state));
+
+});
+
+inputs.autoclear.checked = Boolean( localStorage.getItem("option-autoclear") );
+map.option.autoclear = inputs.autoclear.checked;

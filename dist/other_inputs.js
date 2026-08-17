@@ -1,6 +1,6 @@
 import camera from "./camera.js";
 import { canvasTransformations } from "./index.js";
-import { GameMap } from "./map.js";
+import * as map from "./map.js";
 import * as cursor from "./cursor.js";
 const reset = document.getElementById("reset");
 const playAgain = document.getElementById("again");
@@ -9,13 +9,13 @@ function button_keydown(e) {
     let key = e.key.toLowerCase();
     switch (key) {
         case "n":
-            GameMap.reset(GameMap.width, GameMap.height);
+            map.reset(map.width, map.height);
             break;
         case "m":
-            GameMap.reset(GameMap.width, GameMap.height);
+            map.reset(map.width, map.height);
             break;
         case "space":
-            GameMap.reset(GameMap.width, GameMap.height);
+            map.reset(map.width, map.height);
             break;
     }
 }
@@ -24,7 +24,7 @@ playAgain.addEventListener("keydown", button_keydown);
 document.addEventListener("keydown", (e) => {
     if (e.target != document.body)
         return;
-    if (GameMap.isPlaying == false)
+    if (map.option.is_playing == false)
         return;
     if (canvas.matches(":hover") == false)
         return;
@@ -51,16 +51,16 @@ document.addEventListener("keydown", (e) => {
     let offsetPoint = DOMPoint.fromPoint(cameraPoint);
     switch (key) {
         case "a":
-            offsetPoint.x += GameMap.scale;
+            offsetPoint.x += map.option.scale;
             break;
         case "d":
-            offsetPoint.x -= GameMap.scale;
+            offsetPoint.x -= map.option.scale;
             break;
         case "w":
-            offsetPoint.y += GameMap.scale;
+            offsetPoint.y += map.option.scale;
             break;
         case "s":
-            offsetPoint.y -= GameMap.scale;
+            offsetPoint.y -= map.option.scale;
             break;
         case "n":
             cursor.click("reveal");

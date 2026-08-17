@@ -40,7 +40,7 @@ const camera = {
 		actualZoom = value;
 	},
 
-	get minZoom() {
+	get minZoom(): number {
 		let minZoom = Math.min(
 			(window.innerHeight - 100) / (map.height * map.option.scale),
 			(window.innerWidth - 100) / (map.width * map.option.scale)
@@ -48,7 +48,7 @@ const camera = {
 		return minZoom;
 	},
 
-	get maxZoom() {
+	get maxZoom(): number {
 		return 1;
 	},
 

@@ -129,10 +129,8 @@ function tick() {
 			`\tBomb count: ${map.bombTileIndexes.length} // Post "safe zone" processing`,
 			`\tFlag count: ${map.flagsUsed}`,
 			`\tTiles revealed: ${map.tilesDiscovered}`,
+			`\tNon-bomb tiles: ${map.tiles.length - map.bombTileIndexes.length}`,
 			`\tSize (tiles): ${map.width} x ${map.height}`,
-			"---",
-			"Options:",
-			"\t"
 		];
 
 		let position = { x: 16, y: 16 };

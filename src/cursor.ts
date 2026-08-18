@@ -60,6 +60,9 @@ export function click(type: "reveal" | "flag" | "maybe") {
 		y: Math.floor(domPoint.y / map.option.scale)
 	};
 
+	if (point.x < 0 || point.x >= map.width) return;
+	if (point.y < 0 || point.y >= map.height) return;
+
 	if (type == "reveal") {
 
 		if (map.tilesDiscovered == 0) {

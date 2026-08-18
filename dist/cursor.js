@@ -41,6 +41,10 @@ export function click(type) {
         x: Math.floor(domPoint.x / map.option.scale),
         y: Math.floor(domPoint.y / map.option.scale)
     };
+    if (point.x < 0 || point.x >= map.width)
+        return;
+    if (point.y < 0 || point.y >= map.height)
+        return;
     if (type == "reveal") {
         if (map.tilesDiscovered == 0) {
             let autoclearInitialState = map.option.autoclear;

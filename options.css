@@ -1,0 +1,76 @@
+dialog {
+	border: 4px solid var(--safe-alt);
+	border-radius: 16px;
+	padding: 16px;
+	background: var(--safe);
+}
+
+button {
+	background-color: var(--unchecked);
+	border: none;
+	padding: 8px 16px;
+	border-radius: 8px;
+	font: inherit;
+}
+
+dialog input[type=number] {
+	width: 4em;
+	font: inherit;
+	font-family: monospace;
+	background: var(--safe-alt);
+	border: 2px solid black;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+input[role=switch] {
+	--time: 1s;
+	--dot-size: 21px;
+	--dot-margin: 4px;
+	position: relative;
+	appearance: none;
+	box-sizing: border-box;
+	border: 2px solid black;
+	box-sizing: content-box;
+	width: calc(var(--dot-size) * 3);
+	height: var(--dot-size);
+	padding: var(--dot-margin);
+	border-radius: 8px;
+	overflow: hidden;
+	background: var(--safe-alt);
+	transition: background 200ms;
+	cursor: pointer;
+
+	&:before {
+		content: "";
+		position: relative;
+		display: inline-block;
+		left: 0px;
+		width: var(--dot-size);
+		height: var(--dot-size);
+		background: #00000080;
+		border-radius: 4px;
+		transition: width, left, background;
+		transition-duration: 200ms;
+	}
+
+	&:checked {
+		background: var(--unchecked-alt);
+
+		&:before {
+			z-index: 1;
+			left: calc(100% - var(--dot-size));
+			background: #00000080;
+		}
+	}
+
+	&:active:not([disabled]) {
+		&:before {
+			width: calc(var(--dot-size) * 1.5);
+		}
+
+		&:checked:before {
+			left: calc(100% - var(--dot-size) * 1.5);
+		}
+	}
+}

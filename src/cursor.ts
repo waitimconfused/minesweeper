@@ -1,4 +1,4 @@
-import { canvasTransformations } from "./index.js";
+import { canvasTransformations, DEBUG } from "./index.js";
 import camera from "./camera.js";
 import * as map from "./map.js";
 import * as section from "./section_cache.js";
@@ -34,10 +34,17 @@ export function draw(context: CanvasRenderingContext2D) {
 		map.option.scale
 	);
 	context.closePath();
-
 	context.stroke();
-
 	context.globalAlpha = 1;
+
+	if (DEBUG) {
+		context.fillStyle = "black";
+		context.beginPath();
+		context.arc(domPoint.x, domPoint.y, 4, 0, Math.PI * 2);
+		context.closePath();
+		context.fill();
+	}
+
 
 }
 	
@@ -60,15 +67,13 @@ export function click(type: "reveal" | "flag" | "maybe") {
 			let autoclearInitialState = map.option.autoclear;
 			map.option.autoclear = true;
 
-			let clearSize = 3;
+			for (let y = 0; y < map.option.safeZone.height; y++) {
 
-			for (let y = 0; y < clearSize; y++) {
-
-				for (let x = 0; x < clearSize; x++) {
+				for (let x = 0; x < map.option.safeZone.width; x++) {
 
 					let position = {
-						x: point.x - Math.floor(clearSize / 2) + x,
-						y: point.y - Math.floor(clearSize / 2) + y
+						x: point.x - Math.floor(map.option.safeZone.width / 2) + x,
+						y: point.y - Math.floor(map.option.safeZone.height / 2) + y
 					}
 
 					let tileIndex = position.y * map.width + position.x;

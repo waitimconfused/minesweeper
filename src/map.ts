@@ -10,13 +10,14 @@ export var flagsUsed: number = 0;
 export var width: number = 0;
 export var height: number = 0;
 
-export var bombCount: number = 0;
+export var targetBombCount: number = 0;
 export var bombTileIndexes: number[] = [];
 
 export const option = {
 	is_playing: false,
 	autoclear: false,
-	scale: 100
+	scale: 100,
+	safeZone: { width: 3, height: 3 }
 }
 
 export const styles = {
@@ -55,9 +56,9 @@ export function reset(count_x: number, count_y: number) {
 	html.gameoverScreen.removeAttribute("show");
 	html.winScreen.removeAttribute("show");
 
-	let bombCount = Math.floor(width * height / 4);
+	targetBombCount = Math.floor(width * height / 4);
 
-	for (let i = 0; i < bombCount; i++) {
+	for (let i = 0; i < targetBombCount; i++) {
 		let randomIndex = Math.floor(Math.random() * tiles.length);
 
 		while (bombTileIndexes.includes(randomIndex)) {
@@ -76,7 +77,7 @@ export function reset(count_x: number, count_y: number) {
 
 	let zoom = 1;
 	let x = (width * option.scale) / -2;
-	let y = (width * option.scale) / -2;
+	let y = (height * option.scale) / -2;
 
 	if (isGliding) {
 		let zoomOffset = zoom - camera.zoom;

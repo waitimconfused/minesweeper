@@ -4,9 +4,9 @@ import * as map from "./map.js";
 export const canvas = document.createElement("canvas");
 export const context = canvas.getContext("2d");
 export const offset = { x: 0, y: 0 };
-const padding = 3;
+export const padding = { horizontal: 3, vertical: 3 };
 const previousCamera = { x: 0, y: 0, zoom: 0 };
-export function reload() {
+export function loadIfNecessary() {
     let topLeftPoint = new DOMPoint(0, 0);
     topLeftPoint = topLeftPoint.matrixTransform(canvasTransformations.cameraToWorld);
     let bottomRightPoint = new DOMPoint(canvas.width, canvas.height);
@@ -33,19 +33,21 @@ export function redraw() {
     let bottomRightPoint = new DOMPoint(window.innerWidth, window.innerHeight);
     bottomRightPoint = bottomRightPoint.matrixTransform(canvasTransformations.cameraToWorld);
     let start = {
-        x: Math.max(Math.floor(topLeftPoint.x / map.option.scale), 0) - padding,
-        y: Math.max(Math.floor(topLeftPoint.y / map.option.scale), 0) - padding
+        x: Math.max(Math.floor(topLeftPoint.x / map.option.scale), 0) - padding.horizontal,
+        y: Math.max(Math.floor(topLeftPoint.y / map.option.scale), 0) - padding.vertical
     };
     let end = {
-        x: Math.min(Math.floor(bottomRightPoint.x / map.option.scale), map.width - 1) + 1 + padding * 2,
-        y: Math.min(Math.floor(bottomRightPoint.y / map.option.scale), map.height - 1) + 1 + padding * 2
+        x: Math.min(Math.floor(bottomRightPoint.x / map.option.scale), map.width - 1) + 1 + padding.horizontal * 2,
+        y: Math.min(Math.floor(bottomRightPoint.y / map.option.scale), map.height - 1) + 1 + padding.vertical * 2
     };
     canvas.width = Math.ceil((end.x - start.x) * map.option.scale * camera.zoom);
     canvas.height = Math.ceil((end.y - start.y) * map.option.scale * camera.zoom);
-    if (canvas.width <= 0)
-        return;
-    if (canvas.height <= 0)
-        return;
+    if (canvas.width <= 0) {
+        canvas.width = 1;
+    }
+    if (canvas.height <= 0) {
+        canvas.height = 1;
+    }
     offset.x = start.x * map.option.scale;
     offset.y = start.y * map.option.scale;
     context.save();

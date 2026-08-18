@@ -1,27 +1,25 @@
 import * as map from "./map.js";
 
-
 const inputs = {
-	menu: document.getElementById("options") as HTMLElement,
-	menuToggle: document.getElementById("options-toggle") as HTMLImageElement,
+	menu: document.getElementById("options") as HTMLDialogElement,
 	newGame: document.getElementById("opt-reset") as HTMLButtonElement,
 
-	sizeInput: document.getElementById("opt-size") as HTMLInputElement,
+	sizeX: document.getElementById("opt-size-x") as HTMLInputElement,
+	sizeY: document.getElementById("opt-size-y") as HTMLInputElement,
 	autoclear: document.getElementById("opt-autoclear") as HTMLInputElement
 }
 
 function toggleMenu() {
-	let state: boolean = inputs.menu.hasAttribute("show");
+	let state = inputs.menu.hasAttribute("open");
 
-	if (state == false) {
-		inputs.menu.setAttribute("show", "");
-		map.option.is_playing = false;
-	}
-	else {
-		inputs.menu.removeAttribute("show");
-		map.option.is_playing = true;
-	}
+	if (state == false) inputs.menu.showModal();
+	else inputs.menu.close();
 }
+
+inputs.menu.addEventListener("toggle", () => {
+	map.option.is_playing = !inputs.menu.hasAttribute("open");
+	console.log(map.option.is_playing);
+})
 
 document.addEventListener("keyup", (e: KeyboardEvent) => {
 
@@ -32,18 +30,25 @@ document.addEventListener("keyup", (e: KeyboardEvent) => {
 
 });
 
-inputs.menuToggle.addEventListener("click", toggleMenu);
+inputs.sizeX.addEventListener("input", () => {
+
+	if (inputs.sizeY.value != "") return;
+
+	inputs.sizeY.setAttribute("placeholder", inputs.sizeX.value || inputs.sizeX.placeholder);
+});
 
 inputs.newGame.addEventListener("click", () => {
 
-	let size = inputs.sizeInput.valueAsNumber || 16;
+	let sizeX = inputs.sizeX.valueAsNumber || 16;
+	let sizeY = inputs.sizeY.valueAsNumber || sizeX;
 
-	size = Math.max(size, 8);
+	sizeX = Math.max(sizeX, 8);
+	sizeY = Math.max(sizeY, 8);
 
-	localStorage.setItem("option-map-size", `${size}x${size}`);
+	localStorage.setItem("option-map-size", `${sizeX}x${sizeY}`);
 
-	map.reset(size, size);
-	inputs.menu.removeAttribute("show");
+	map.reset(sizeX, sizeY);
+	inputs.menu.close();
 
 });
 
@@ -56,5 +61,5 @@ inputs.autoclear.addEventListener("change", () => {
 
 });
 
-inputs.autoclear.checked = Boolean( localStorage.getItem("option-autoclear") );
+inputs.autoclear.checked = localStorage.getItem("option-autoclear") == "true";
 map.option.autoclear = inputs.autoclear.checked;

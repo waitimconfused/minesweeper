@@ -38,47 +38,58 @@ document.addEventListener("keydown", (e) => {
 	if (canvas.matches(":hover") == false) return;
 
 	camera.inputMethod = "keyboard";
-	
-	if (e.repeat) return;
 
 	let key = e.key;
 
 	switch (key) {
-		case "ArrowLeft":
-			key = "a";
+		case "a":
+			key = "ArrowLeft";
 			break;
-		case "ArrowRight":
-			key = "d";
+		case "d":
+			key = "ArrowRight";
 			break;
-		case "ArrowUp":
-			key = "w";
+		case "w":
+			key = "ArrowUp";
 			break;
-		case "ArrowDown":
-			key = "s";
+		case "s":
+			key = "ArrowDown";
 			break;
 	}
 
+	
+	if (
+		key == "ArrowUp" ||
+		key == "ArrowDown" ||
+		key == "ArrowLeft" ||
+		key == "ArrowRight"
+	) {
+		let cameraPoint = new DOMPoint(canvas.width/2, canvas.height/2).matrixTransform(canvasTransformations.cameraToWorld);
+		let offsetPoint = DOMPoint.fromPoint(cameraPoint);
+		
+		offsetPoint.y += map.option.scale * Number(key == "ArrowUp");
+		offsetPoint.y -= map.option.scale * Number(key == "ArrowDown");
+		offsetPoint.x += map.option.scale * Number(key == "ArrowLeft");
+		offsetPoint.x -= map.option.scale * Number(key == "ArrowRight");
+		
+		let difference = {
+			x: offsetPoint.x - cameraPoint.x,
+			y: offsetPoint.y - cameraPoint.y
+		};
+		
+		console.log(key);
+		
+		camera.mouse.x = canvas.width / 2;
+		camera.mouse.y = canvas.height / 2;
+		
+		camera.glideByOffset(difference.x, difference.y);
+		return;
+		
+	}
+	
+	if (e.repeat) return;
 	key = key.toLowerCase();
-
-	let cameraPoint = new DOMPoint(canvas.width/2, canvas.height/2).matrixTransform(canvasTransformations.cameraToWorld);
-	let offsetPoint = DOMPoint.fromPoint(cameraPoint);
 	
 	switch (key) {
-		case "a":
-			offsetPoint.x += map.option.scale;
-			break;
-
-		case "d":
-			offsetPoint.x -= map.option.scale;
-			break;
-
-		case "w":
-			offsetPoint.y += map.option.scale;
-			break;
-
-		case "s":
-			offsetPoint.y -= map.option.scale;
-			break;
 
 		case "n":
 			cursor.click("reveal");
@@ -103,15 +114,5 @@ document.addEventListener("keydown", (e) => {
 		default:
 			break;
 	}
-
-	let difference = {
-		x: offsetPoint.x - cameraPoint.x,
-		y: offsetPoint.y - cameraPoint.y
-	}
-
-	camera.mouse.x = canvas.width / 2;
-	camera.mouse.y = canvas.height / 2;
-
-	camera.glideByOffset(difference.x, difference.y);
 
 });

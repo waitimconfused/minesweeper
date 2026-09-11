@@ -29,39 +29,45 @@ document.addEventListener("keydown", (e) => {
     if (canvas.matches(":hover") == false)
         return;
     camera.inputMethod = "keyboard";
-    if (e.repeat)
-        return;
     let key = e.key;
     switch (key) {
-        case "ArrowLeft":
-            key = "a";
-            break;
-        case "ArrowRight":
-            key = "d";
-            break;
-        case "ArrowUp":
-            key = "w";
-            break;
-        case "ArrowDown":
-            key = "s";
-            break;
-    }
-    key = key.toLowerCase();
-    let cameraPoint = new DOMPoint(canvas.width / 2, canvas.height / 2).matrixTransform(canvasTransformations.cameraToWorld);
-    let offsetPoint = DOMPoint.fromPoint(cameraPoint);
-    switch (key) {
         case "a":
-            offsetPoint.x += map.option.scale;
+            key = "ArrowLeft";
             break;
         case "d":
-            offsetPoint.x -= map.option.scale;
+            key = "ArrowRight";
             break;
         case "w":
-            offsetPoint.y += map.option.scale;
+            key = "ArrowUp";
             break;
         case "s":
-            offsetPoint.y -= map.option.scale;
+            key = "ArrowDown";
             break;
+    }
+    if (key == "ArrowUp" ||
+        key == "ArrowDown" ||
+        key == "ArrowLeft" ||
+        key == "ArrowRight") {
+        let cameraPoint = new DOMPoint(canvas.width / 2, canvas.height / 2).matrixTransform(canvasTransformations.cameraToWorld);
+        let offsetPoint = DOMPoint.fromPoint(cameraPoint);
+        offsetPoint.y += map.option.scale * Number(key == "ArrowUp");
+        offsetPoint.y -= map.option.scale * Number(key == "ArrowDown");
+        offsetPoint.x += map.option.scale * Number(key == "ArrowLeft");
+        offsetPoint.x -= map.option.scale * Number(key == "ArrowRight");
+        let difference = {
+            x: offsetPoint.x - cameraPoint.x,
+            y: offsetPoint.y - cameraPoint.y
+        };
+        console.log(key);
+        camera.mouse.x = canvas.width / 2;
+        camera.mouse.y = canvas.height / 2;
+        camera.glideByOffset(difference.x, difference.y);
+        return;
+    }
+    if (e.repeat)
+        return;
+    key = key.toLowerCase();
+    switch (key) {
         case "n":
             cursor.click("reveal");
             break;
@@ -80,12 +86,5 @@ document.addEventListener("keydown", (e) => {
         default:
             break;
     }
-    let difference = {
-        x: offsetPoint.x - cameraPoint.x,
-        y: offsetPoint.y - cameraPoint.y
-    };
-    camera.mouse.x = canvas.width / 2;
-    camera.mouse.y = canvas.height / 2;
-    camera.glideByOffset(difference.x, difference.y);
 });
 //# sourceMappingURL=other_inputs.js.map

@@ -58,7 +58,6 @@ document.addEventListener("keydown", (e) => {
             x: offsetPoint.x - cameraPoint.x,
             y: offsetPoint.y - cameraPoint.y
         };
-        console.log(key);
         camera.mouse.x = canvas.width / 2;
         camera.mouse.y = canvas.height / 2;
         camera.glideByOffset(difference.x, difference.y);

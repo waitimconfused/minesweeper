@@ -129,8 +129,8 @@ function scrollEventCallback(e: WheelEvent | KeyboardEvent) {
 		if (e.ctrlKey) {
 			camera.zoom -= e.deltaY * camera.zoom / 200;
 		} else {
-			camera.x += e.deltaX / camera.zoom;
-			camera.y += e.deltaY / camera.zoom;
+			camera.x += (e.shiftKey == false ? e.deltaX : e.deltaY) / camera.zoom;
+			camera.y += (e.shiftKey == false ? e.deltaY : e.deltaX) / camera.zoom;
 		}
 	} else if (e instanceof KeyboardEvent) {
 		if (!e.ctrlKey) return;

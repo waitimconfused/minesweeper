@@ -6,7 +6,7 @@ export const context = canvas.getContext("2d");
 export const offset = { x: 0, y: 0 };
 export const padding = { horizontal: 3, vertical: 3 };
 const previousCamera = { x: 0, y: 0, zoom: 0 };
-export function loadIfNecessary() {
+export function redrawIfNecessary() {
     let topLeftPoint = new DOMPoint(0, 0);
     topLeftPoint = topLeftPoint.matrixTransform(canvasTransformations.cameraToWorld);
     let bottomRightPoint = new DOMPoint(canvas.width, canvas.height);
@@ -37,8 +37,8 @@ export function redraw() {
         y: Math.max(Math.floor(topLeftPoint.y / map.option.scale), 0) - padding.vertical
     };
     let end = {
-        x: Math.min(Math.floor(bottomRightPoint.x / map.option.scale), map.width - 1) + 1 + padding.horizontal * 2,
-        y: Math.min(Math.floor(bottomRightPoint.y / map.option.scale), map.height - 1) + 1 + padding.vertical * 2
+        x: Math.min(Math.floor(bottomRightPoint.x / map.option.scale), map.width - 1) + 1 + padding.horizontal,
+        y: Math.min(Math.floor(bottomRightPoint.y / map.option.scale), map.height - 1) + 1 + padding.vertical
     };
     canvas.width = Math.ceil((end.x - start.x) * map.option.scale * camera.zoom);
     canvas.height = Math.ceil((end.y - start.y) * map.option.scale * camera.zoom);

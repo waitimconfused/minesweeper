@@ -2,15 +2,6 @@ import * as map from "./map.js";
 import camera from "./camera.js";
 import * as cursor from "./cursor.js";
 import * as section from "./section_cache.js";
-map.styles.colour.unchecked = ["#A2D149", "#AAD751"];
-map.styles.colour.safe = ["#D7B899", "#E5C29F"];
-map.styles.colour.bomb = ["#DB3236", "#F4840D", "#F4C20D", "#48E6F1", "#B648F2", "#ED44B5"];
-map.styles.image.bomb = new Image;
-map.styles.image.bomb.src = "./assets/bomb.svg";
-map.styles.image.flag = new Image;
-map.styles.image.flag.src = "./assets/flag.svg";
-map.styles.image.maybe = new Image;
-map.styles.image.maybe.src = "./assets/maybe.svg";
 const canvas = document.getElementById("screen");
 const context = canvas.getContext("2d");
 export const DEBUG = (new URL(location.toString())).searchParams.has("debug");
@@ -37,9 +28,8 @@ var delta = 0;
 function tick() {
     let time = performance.now();
     delta = time - timestamp;
-    let scaling = window.devicePixelRatio ?? 1;
-    let width = roundToNearest(canvas.clientWidth * scaling, 2);
-    let height = roundToNearest(canvas.clientHeight * scaling, 2);
+    let width = roundToNearest(canvas.clientWidth, 2);
+    let height = roundToNearest(canvas.clientHeight, 2);
     if (canvas.width != width)
         canvas.width = width;
     if (canvas.height != height)
@@ -57,8 +47,16 @@ function tick() {
     context.translate(Math.round(camera.x), Math.round(camera.y));
     canvasTransformations.worldToCamera = context.getTransform();
     canvasTransformations.cameraToWorld = canvasTransformations.worldToCamera.inverse();
-    section.loadIfNecessary();
+    section.redrawIfNecessary();
     context.drawImage(section.canvas, section.offset.x, section.offset.y, section.canvas.width / camera.zoom, section.canvas.height / camera.zoom);
+    if (DEBUG) {
+        context.beginPath();
+        context.strokeStyle = "black";
+        context.lineWidth = 2;
+        context.rect(section.offset.x, section.offset.y, section.canvas.width / camera.zoom, section.canvas.height / camera.zoom);
+        context.closePath();
+        context.stroke();
+    }
     if (map.option.is_playing)
         cursor.draw(context);
     context.restore();
@@ -131,6 +129,13 @@ tick();
 function roundToNearest(value, interval) {
     return Math.floor(value / interval) * interval;
 }
+export function loadImage(src) {
+    return new Promise((resolve) => {
+        let image = new Image;
+        image.src = src;
+        image.addEventListener("load", () => resolve(image));
+    });
+}
 html.reset.addEventListener("click", () => {
     camera.x = (map.width * map.option.scale) / -2;
     camera.y = (map.height * map.option.scale) / -2;
@@ -138,5 +143,8 @@ html.reset.addEventListener("click", () => {
 });
 html.playAgain.addEventListener("click", () => {
     map.reset(map.width, map.height);
+});
+window.addEventListener("resize", () => {
+    section.redraw();
 });
 //# sourceMappingURL=index.js.map

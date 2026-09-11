@@ -1,5 +1,12 @@
 import camera from "./camera.js";
-import { html } from "./index.js";
+import { html, loadImage } from "./index.js";
+const TILE = {
+    UNSET: Symbol("tile.unset"),
+    FLAG: Symbol("tile.flag"),
+    SAFE: Symbol("tile.safe"),
+    MAYBE: Symbol("tile.maybe"),
+    BOMB: Symbol("tile.bomb")
+};
 export var tiles = [];
 export var tilesDiscovered = 0;
 export var flagsUsed = 0;
@@ -15,14 +22,14 @@ export const option = {
 };
 export const styles = {
     colour: {
-        unchecked: ["green", "limegreen"],
-        safe: ["burlywood", "beige"],
-        bomb: ["red", "orange"]
+        unchecked: ["#A2D149", "#AAD751"],
+        safe: ["#D7B899", "#E5C29F"],
+        bomb: ["#DB3236", "#F4840D", "#F4C20D", "#48E6F1", "#B648F2", "#ED44B5"]
     },
     image: {
-        bomb: new Image,
-        flag: new Image,
-        maybe: new Image
+        bomb: await loadImage("./assets/bomb.svg"),
+        flag: await loadImage("./assets/flag.svg"),
+        maybe: await loadImage("./assets/maybe.svg")
     }
 };
 export function reset(count_x, count_y) {
@@ -32,6 +39,9 @@ export function reset(count_x, count_y) {
     if (tiles.length == 0)
         isGliding = false;
     tiles = new Array(count_x * count_y);
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i] = TILE.UNSET;
+    }
     tilesDiscovered = 0;
     flagsUsed = 0;
     bombTileIndexes = [];
@@ -85,7 +95,7 @@ export function drawTile(x, y, context) {
         return;
     let tile = tiles[y * width + x];
     let colourIndex = (x + y % 2) % 2;
-    if (tile == undefined || tile == "Flag" || tile == "Maybe") {
+    if (tile == TILE.UNSET || tile == TILE.FLAG || tile == TILE.MAYBE) {
         context.fillStyle = styles.colour.unchecked[colourIndex];
     }
     else {
@@ -98,8 +108,8 @@ export function drawTile(x, y, context) {
     context.rect(0, 0, 1, 1);
     context.closePath();
     context.fill();
-    if (typeof tile == "string" && tile.startsWith("Bomb")) {
-        let index = Number(tile.replace("Bomb", ""));
+    if (tile == TILE.BOMB) {
+        let index = (x * y) % styles.colour.bomb.length;
         context.fillStyle = styles.colour.bomb[index];
         context.beginPath();
         let padding = 1 / 10;
@@ -110,15 +120,15 @@ export function drawTile(x, y, context) {
     }
     let offset = 1 / 2;
     context.translate(offset, offset);
-    if (tile == "Flag") {
+    if (tile == TILE.FLAG) {
         let size = 3 / 4;
         context.drawImage(styles.image.flag, -size / 2, -size / 2, size, size);
     }
-    else if (tile == "Maybe") {
+    else if (tile == TILE.MAYBE) {
         let size = 1 / 2;
         context.drawImage(styles.image.maybe, -size / 2, -size / 2, size, size);
     }
-    else if (typeof tile == "string" && tile.startsWith("Bomb")) {
+    else if (tile == TILE.BOMB) {
         let size = 3 / 4;
         context.drawImage(styles.image.bomb, -size / 2, -size / 2, size, size);
     }
@@ -145,14 +155,13 @@ export function exploreTile(x, y, context, forceUpdate = false) {
     if (x >= width)
         return;
     let index = y * width + x;
-    if (tiles[index] == undefined || tiles[index] == "Maybe")
+    if (tiles[index] == TILE.UNSET || tiles[index] == TILE.MAYBE)
         tilesDiscovered += 1;
     checkForWin();
-    if (tiles[index] == "Flag")
+    if (tiles[index] == TILE.FLAG)
         return;
     if (bombTileIndexes.includes(index)) {
-        let randomNumber = Math.floor(Math.random() * styles.colour.bomb.length);
-        tiles[index] = `Bomb${randomNumber}`;
+        tiles[index] = TILE.BOMB;
         if (context)
             drawTile(x, y, context);
         let tileCount = tiles.length - bombTileIndexes.length;
@@ -190,7 +199,7 @@ export function exploreTile(x, y, context, forceUpdate = false) {
         if (bombTileIndexes.includes(neighbourIndex))
             sumOfBombs += 1;
         let tile = tiles[neighbourIndex];
-        if (tile == "Flag")
+        if (tile == TILE.FLAG)
             sumOfFlags += 1;
     }
     tiles[index] = sumOfBombs;
@@ -201,7 +210,7 @@ export function exploreTile(x, y, context, forceUpdate = false) {
         for (let i = 0; i < neighbourIndexes.length; i++) {
             let index = neighbourIndexes[i];
             let tile = tiles[index];
-            if (tile != undefined && tile != "Maybe")
+            if (tile != TILE.UNSET && tile != TILE.MAYBE)
                 continue;
             let y = Math.floor(index / width);
             let x = index % width;
@@ -212,7 +221,7 @@ export function exploreTile(x, y, context, forceUpdate = false) {
         for (let i = 0; i < neighbourIndexes.length; i++) {
             let index = neighbourIndexes[i];
             let tile = tiles[index];
-            if (tile != undefined && tile != "Maybe")
+            if (tile != TILE.UNSET && tile != TILE.MAYBE)
                 continue;
             let y = Math.floor(index / width);
             let x = index % width;
@@ -230,12 +239,12 @@ export function toggleFlag(x, y, context) {
     if (x > width)
         return;
     let index = y * width + x;
-    if (tiles[index] == undefined || tiles[index] == "Maybe") {
-        tiles[index] = "Flag";
+    if (tiles[index] == TILE.UNSET || tiles[index] == TILE.MAYBE) {
+        tiles[index] = TILE.FLAG;
         flagsUsed += 1;
     }
-    else if (tiles[index] == "Flag") {
-        tiles[index] = undefined;
+    else if (tiles[index] == TILE.FLAG) {
+        tiles[index] = TILE.UNSET;
         flagsUsed -= 1;
     }
     html.flags_used.innerText = flagsUsed.toString();
@@ -253,29 +262,29 @@ export function toggleMaybe(x, y, context) {
     if (x > width)
         return;
     let index = y * width + x;
-    if (tiles[index] == undefined) {
-        tiles[index] = "Maybe";
+    if (tiles[index] == TILE.UNSET) {
+        tiles[index] = TILE.MAYBE;
     }
-    else if (tiles[index] == "Maybe") {
-        tiles[index] = undefined;
+    else if (tiles[index] == TILE.MAYBE) {
+        tiles[index] = TILE.UNSET;
     }
     if (context)
         drawTile(x, y, context);
 }
 export function getTileFromPos(x, y) {
     if (y < 0)
-        return undefined;
+        return TILE.UNSET;
     if (x < 0)
-        return undefined;
+        return TILE.UNSET;
     if (y > height)
-        return undefined;
+        return TILE.UNSET;
     if (x > width - 1)
-        return undefined;
+        return TILE.UNSET;
     let index = y * width + x;
     if (bombTileIndexes.includes(index) && !tiles[index]) {
-        return "Bomb";
+        return TILE.BOMB;
     }
-    return tiles[index];
+    return tiles[index] || TILE.UNSET;
 }
 export function checkForWin() {
     if (option.is_playing == false)

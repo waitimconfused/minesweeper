@@ -47,7 +47,7 @@ export const styles = {
 
 };
 
-export function reset(count_x: number, count_y: number) {
+export async function reset(count_x: number, count_y: number) {
 	width = count_x;
 	height = count_y;
 
@@ -96,7 +96,7 @@ export function reset(count_x: number, count_y: number) {
 		let zoomOffset = zoom - camera.zoom;
 		camera.glideByZoom(zoomOffset);
 		
-		camera.glideByOffset(
+		await camera.glideByOffset(
 			x - camera.x,
 			y - camera.y
 		)

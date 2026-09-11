@@ -35,23 +35,23 @@ const camera = {
     get maxZoom() {
         return 1;
     },
-    glideByOffset(x, y, step = 0) {
-        if (step >= 4)
-            return;
-        this.x += x / 4;
-        this.y += y / 4;
-        setTimeout(() => this.glideByOffset(x, y, step + 1), 20);
+    async glideByOffset(x, y) {
+        for (let i = 0; i < 4; i++) {
+            this.x += x / 4;
+            this.y += y / 4;
+            await timeout(20);
+        }
     },
-    glideByBlockOffset(x, y) {
-        this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
+    async glideByBlockOffset(x, y) {
+        await this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
     },
-    glideByZoom(zoomOffset, step = 0) {
-        if (step >= 4)
-            return;
-        this.zoom += zoomOffset / 4;
-        this.zoom = Math.min(this.zoom, this.maxZoom);
-        this.zoom = Math.max(this.zoom, this.minZoom);
-        setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
+    async glideByZoom(zoomOffset, step = 0) {
+        for (let i = 0; i < 4; i++) {
+            this.zoom += zoomOffset / 4;
+            this.zoom = Math.min(this.zoom, this.maxZoom);
+            this.zoom = Math.max(this.zoom, this.minZoom);
+            await timeout(20);
+        }
     }
 };
 export default camera;
@@ -143,4 +143,9 @@ document.addEventListener("keyup", (e) => {
     camera.buttons.shift = e.shiftKey;
     camera.buttons.alt = e.altKey;
 });
+function timeout(timeout) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, timeout);
+    });
+}
 //# sourceMappingURL=camera.js.map

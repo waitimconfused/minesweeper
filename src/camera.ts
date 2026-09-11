@@ -52,28 +52,29 @@ const camera = {
 		return 1;
 	},
 
-	glideByOffset(x: number, y: number, step = 0) {
-		if (step >= 4) return;
+	async glideByOffset(x: number, y: number) {
 
-		this.x += x / 4;
-		this.y += y / 4;
-
-		setTimeout(() => this.glideByOffset(x, y, step + 1), 20);
+		for (let i = 0; i < 4; i ++) {
+			this.x += x / 4;
+			this.y += y / 4;
+			await timeout(20);
+		}
 	},
 
-	glideByBlockOffset(x: number, y: number) {
-		this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
+	async glideByBlockOffset(x: number, y: number) {
+		await this.glideByOffset(-x * map.option.scale, -y * map.option.scale);
 	},
 
-	glideByZoom(zoomOffset: number, step = 0) {
-		if (step >= 4) return;
+	async glideByZoom(zoomOffset: number, step = 0) {
 
-		this.zoom += zoomOffset / 4;
+		for (let i = 0; i < 4; i ++) {
+			this.zoom += zoomOffset / 4;
+	
+			this.zoom = Math.min(this.zoom, this.maxZoom);
+			this.zoom = Math.max(this.zoom, this.minZoom);
 
-		this.zoom = Math.min(this.zoom, this.maxZoom);
-		this.zoom = Math.max(this.zoom, this.minZoom);
-
-		setTimeout(() => this.glideByZoom(zoomOffset, step + 1), 20);
+			await timeout(20);
+		}
 
 	}
 };
@@ -179,3 +180,14 @@ document.addEventListener("keyup", (e) => {
 	camera.buttons.alt = e.altKey;
 
 });
+
+/**
+ * Wraps `setTimeout(handler, timeout)` to be a `Promise`
+ * 
+ * @param timeout	Duration in *milliseconds*
+ */
+function timeout(timeout: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(resolve, timeout);
+	})
+}

@@ -32,7 +32,7 @@ export const styles = {
         maybe: await loadImage("./assets/maybe.svg")
     }
 };
-export function reset(count_x, count_y) {
+export async function reset(count_x, count_y) {
     width = count_x;
     height = count_y;
     let isGliding = true;
@@ -65,7 +65,7 @@ export function reset(count_x, count_y) {
     if (isGliding) {
         let zoomOffset = zoom - camera.zoom;
         camera.glideByZoom(zoomOffset);
-        camera.glideByOffset(x - camera.x, y - camera.y);
+        await camera.glideByOffset(x - camera.x, y - camera.y);
     }
     else {
         camera.zoom = zoom;

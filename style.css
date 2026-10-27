@@ -17,8 +17,6 @@
 }
 
 html, body {
-	margin: 0;
-	height: 100%;
 	overscroll-behavior-y: none;
 	user-select: none;
 }

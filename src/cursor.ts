@@ -7,6 +7,9 @@ import { html} from "./index.js";
 var cursorTransformation: DOMMatrix | null = null;
 
 export function draw(context: CanvasRenderingContext2D) {
+
+	// if (camera.inputMethod == "touch") return;
+
 	cursorTransformation = context.getTransform().inverse();
 
 	let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
@@ -108,20 +111,3 @@ export function click(type: "reveal" | "flag" | "maybe") {
 	}
 
 }
-
-document.addEventListener("click", (e) => {
-
-	if (camera.inputMethod != "mouse") return;
-
-	if (!e.shiftKey) click("reveal");
-	else click("maybe");
-});
-
-document.addEventListener("contextmenu", (e) => {
-
-	if (camera.inputMethod != "mouse") return;
-
-	if (!e.shiftKey) click("flag");
-	else click("maybe");
-
-});

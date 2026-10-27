@@ -77,20 +77,4 @@ export function click(type) {
         section.redraw();
     }
 }
-document.addEventListener("click", (e) => {
-    if (camera.inputMethod != "mouse")
-        return;
-    if (!e.shiftKey)
-        click("reveal");
-    else
-        click("maybe");
-});
-document.addEventListener("contextmenu", (e) => {
-    if (camera.inputMethod != "mouse")
-        return;
-    if (!e.shiftKey)
-        click("flag");
-    else
-        click("maybe");
-});
 //# sourceMappingURL=cursor.js.map

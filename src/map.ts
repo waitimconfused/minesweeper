@@ -183,7 +183,7 @@ export function drawTile(x: number, y: number, context: CanvasRenderingContext2D
 		context.scale(1 / option.scale, 1 / option.scale);
 		context.fillStyle = "black";
 		context.lineWidth = 1;
-		context.font = "600 24px poppins"
+		context.font = "600 24px Inter"
 		context.textAlign = "center";
 		context.textBaseline = "middle";
 		context.fillText(tile.toString(), offset, offset);

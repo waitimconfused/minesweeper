@@ -1,7 +1,7 @@
-import camera from "./camera.js";
-import { canvasTransformations } from "./index.js";
-import * as map from "./map.js";
-import * as cursor from "./cursor.js";
+import camera from "../camera.js";
+import { canvasTransformations } from "../index.js";
+import * as map from "../map.js";
+import * as cursor from "../cursor.js";
 
 const reset: HTMLButtonElement = document.getElementById("reset") as HTMLButtonElement;
 const playAgain: HTMLButtonElement = document.getElementById("again") as HTMLButtonElement;

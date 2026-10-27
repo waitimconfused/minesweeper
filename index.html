@@ -62,12 +62,14 @@
 		<button id="again">Play again?</button>
 	</section>
 
-	<button alt="Options-menu toggle" title="Options (ctrl+comma)" command="show-modal" commandfor="options" style="position:fixed; bottom:8px; right:8px; padding: 0; border-radius: 0; background: none;">
+	<button alt="Options-menu toggle" title="Options (ctrl+comma)" command="show-modal" commandfor="options" style="position:fixed; bottom:0; right:0; padding:24px 8px 8px 24px; border-radius:50px 0 0 0; background:red;">
 		<img src="./assets/gear.svg">
 	</button>
 
 	<script src="./dist/index.js" type="module"></script>
-	<script src="./dist/other_inputs.js" type="module"></script>
+	<script src="./dist/input/mouse.js" type="module"></script>
+	<script src="./dist/input/keyboard.js" type="module"></script>
+	<script src="./dist/input/touchscreen.js" type="module"></script>
 	<script src="./dist/options.js" type="module"></script>
 </body>
 

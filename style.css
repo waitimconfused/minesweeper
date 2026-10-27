@@ -16,8 +16,17 @@
 	--bomb-6: #ED44B5;
 }
 
+html, body {
+	margin: 0;
+	height: 100%;
+	overscroll-behavior-y: none;
+	user-select: none;
+}
+
 body {
 	font-family: "Inter";
+	overflow-y: auto;
+	user-select: none;
 }
 
 #screen {
@@ -27,6 +36,8 @@ body {
 	z-index: -1000000;
 	width: 100vw;
 	height: 100vh;
+	-webkit-touch-callout: none !important;
+	-webkit-user-select: none !important;
 }
 
 #gameover, #win, #settings {

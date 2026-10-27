@@ -30,7 +30,7 @@ document.addEventListener("keydown", (e) => {
         return;
     camera.inputMethod = "keyboard";
     let key = e.key;
-    switch (key) {
+    switch (key.toLowerCase()) {
         case "a":
             key = "ArrowLeft";
             break;

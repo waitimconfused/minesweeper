@@ -41,7 +41,7 @@ document.addEventListener("keydown", (e) => {
 
 	let key = e.key;
 
-	switch (key) {
+	switch (key.toLowerCase()) {
 		case "a":
 			key = "ArrowLeft";
 			break;

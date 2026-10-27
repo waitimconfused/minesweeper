@@ -1,5 +1,6 @@
 import camera from "./camera.js";
 import { html, loadImage } from "./index.js";
+import * as section from "./section_cache.js";
 const TILE = {
     UNSET: Symbol("tile.unset"),
     FLAG: Symbol("tile.flag"),
@@ -59,6 +60,7 @@ export async function reset(count_x, count_y) {
     html.tiles_shown.innerText = "0";
     html.flag_count.innerText = "?";
     html.flags_used.innerText = "0";
+    section.redraw();
     let zoom = 1;
     let x = (width * option.scale) / -2;
     let y = (height * option.scale) / -2;
@@ -157,7 +159,6 @@ export function exploreTile(x, y, context, forceUpdate = false) {
     let index = y * width + x;
     if (tiles[index] == TILE.UNSET || tiles[index] == TILE.MAYBE)
         tilesDiscovered += 1;
-    checkForWin();
     if (tiles[index] == TILE.FLAG)
         return;
     if (bombTileIndexes.includes(index)) {
@@ -173,6 +174,7 @@ export function exploreTile(x, y, context, forceUpdate = false) {
         camera.glideByZoom(-0.5);
         return;
     }
+    checkForWin();
     if (context)
         drawTile(x, y, context);
     let getIndex = (x, y) => {

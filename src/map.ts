@@ -1,5 +1,6 @@
 import camera from "./camera.js";
 import { html, loadImage } from "./index.js";
+import * as section from "./section_cache.js"
 
 const TILE = {
 	UNSET: Symbol("tile.unset"),
@@ -86,7 +87,7 @@ export async function reset(count_x: number, count_y: number) {
 	html.flag_count.innerText = "?";
 	html.flags_used.innerText = "0";
 
-	// this.drawMap();
+	section.redraw();
 
 	let zoom = 1;
 	let x = (width * option.scale) / -2;
@@ -205,34 +206,35 @@ export function exploreTile(x: number, y: number, context?: CanvasRenderingConte
 
 	if (tiles[index] == TILE.UNSET || tiles[index] == TILE.MAYBE) tilesDiscovered += 1;
 
-	checkForWin();
-
+	
 	if (tiles[index] == TILE.FLAG) return;
-
+	
 	// If tile is a bomb
 	if (bombTileIndexes.includes(index)) {
-
+		
 		// let randomNumber = Math.floor(Math.random() * styles.colour.bomb.length);
 		// tiles[index] = randomNumber
-
+		
 		tiles[index] = TILE.BOMB;
-
+		
 		if (context) drawTile(x, y, context);
-
+		
 		let tileCount = tiles.length - bombTileIndexes.length;
 		html.gameoverScreen_score.innerText = "~" + (tilesDiscovered / tileCount * 100).toFixed(3).replace(/\.?0+$/, "") + "%";
-
+		
 		html.gameoverScreen.setAttribute("show", "true");
 		html.reset.focus();
-
+		
 		option.is_playing = false;
 		camera.enabled = false;
-
+		
 		camera.glideByZoom(-0.5);
-
+		
 		return;
-
+		
 	}
+	
+	checkForWin();
 
 	if (context) drawTile(x, y, context);
 	

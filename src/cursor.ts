@@ -8,9 +8,9 @@ var cursorTransformation: DOMMatrix | null = null;
 
 export function draw(context: CanvasRenderingContext2D) {
 
-	// if (camera.inputMethod == "touch") return;
-
 	cursorTransformation = context.getTransform().inverse();
+	
+	if (camera.inputMethod == "touch") return;
 
 	let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
 	domPoint = domPoint.matrixTransform(canvasTransformations.cameraToWorld);

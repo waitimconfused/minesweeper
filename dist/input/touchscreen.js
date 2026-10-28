@@ -1,13 +1,15 @@
 import camera from "../camera.js";
 import * as cursor from "../cursor.js";
+import { html } from "../index.js";
 import * as map from "../map.js";
-const REVEAL_DURATION = 100;
-const FLAG_DURATION = 500;
+const REVEAL_DURATION = 300;
+const FLAG_DURATION = 400;
+const MAYBE_DURATION = 800;
 var fingers = [];
 var fingerHoldStart = null;
 var fingerDragDistance = null;
 document.addEventListener("touchstart", (e) => {
-    if (e.target != document.body)
+    if (e.target != html.canvas)
         return;
     reloadFingers(e);
     if (fingers.length == 1)
@@ -21,7 +23,7 @@ document.addEventListener("touchstart", (e) => {
     }
 });
 document.addEventListener("touchmove", (e) => {
-    if (e.target != document.body)
+    if (e.target != html.canvas)
         return;
     if (camera.inputMethod != "touch")
         return;
@@ -38,10 +40,12 @@ document.addEventListener("touchmove", (e) => {
         if (Math.hypot(delta.x, delta.y) > 10) {
             fingerHoldStart = null;
         }
-        camera.x -= delta.x;
-        camera.y -= delta.y;
-        camera.mouse.x = finger.x;
-        camera.mouse.y = finger.y;
+        if (fingerHoldStart == null) {
+            camera.x -= delta.x / camera.zoom;
+            camera.y -= delta.y / camera.zoom;
+            camera.mouse.x = finger.x;
+            camera.mouse.y = finger.y;
+        }
     }
     else if (e.touches.length == 2) {
         let finger1 = {
@@ -63,7 +67,7 @@ document.addEventListener("touchmove", (e) => {
     reloadFingers(e);
 }, { passive: false });
 document.addEventListener("touchend", (e) => {
-    if (e.target != document.body)
+    if (e.target != html.canvas)
         return;
     if (camera.inputMethod != "touch")
         return;
@@ -101,7 +105,7 @@ function holdFingers() {
             window.requestAnimationFrame(holdFingers);
             return;
         }
-        if (fingerHoldDuration < FLAG_DURATION) {
+        if (fingerHoldDuration < REVEAL_DURATION + FLAG_DURATION) {
             cursor.click("flag");
             fingerHoldStart = null;
         }

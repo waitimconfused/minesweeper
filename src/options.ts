@@ -18,7 +18,6 @@ function toggleMenu() {
 
 inputs.menu.addEventListener("toggle", () => {
 	map.option.is_playing = !inputs.menu.hasAttribute("open");
-	console.log(map.option.is_playing);
 })
 
 document.addEventListener("keyup", (e: KeyboardEvent) => {

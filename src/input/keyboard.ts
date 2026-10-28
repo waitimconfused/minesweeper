@@ -74,13 +74,15 @@ document.addEventListener("keydown", (e) => {
 			x: offsetPoint.x - cameraPoint.x,
 			y: offsetPoint.y - cameraPoint.y
 		};
-		
-		camera.mouse.x = canvas.width / 2;
-		camera.mouse.y = canvas.height / 2;
-		
+
+		// Move mouse to center + a tiny tiny little bit (stabilization)
+		let nudge = 1 * camera.zoom;
+		camera.mouse.x = canvas.width / 2 + nudge;
+		camera.mouse.y = canvas.height / 2 + nudge;
+
 		camera.glideByOffset(difference.x, difference.y);
 		return;
-		
+
 	}
 	
 	if (e.repeat) return;

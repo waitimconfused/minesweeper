@@ -6,6 +6,8 @@ import { html } from "./index.js";
 var cursorTransformation = null;
 export function draw(context) {
     cursorTransformation = context.getTransform().inverse();
+    if (camera.inputMethod == "touch")
+        return;
     let domPoint = new DOMPoint(camera.mouse.x, camera.mouse.y);
     domPoint = domPoint.matrixTransform(canvasTransformations.cameraToWorld);
     let point = {

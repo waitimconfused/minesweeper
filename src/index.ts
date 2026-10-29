@@ -53,8 +53,16 @@ function tick() {
 	let width = roundToNearest(canvas.clientWidth, 2);
 	let height = roundToNearest(canvas.clientHeight, 2);
 
-	if (canvas.width != width) canvas.width = width;
-	if (canvas.height != height) canvas.height = height;
+	let forceRedraw = false;
+
+	if (canvas.width != width) {
+		canvas.width = width;
+		forceRedraw = true;
+	}
+	if (canvas.height != height) {
+		canvas.height = height;
+		forceRedraw = true;
+	}
 
 	if (camera.inputMethod == "mouse" || map.option.is_playing == false) {
 		canvas.style.setProperty("cursor", "crosshair");
@@ -72,7 +80,8 @@ function tick() {
 	canvasTransformations.worldToCamera = context.getTransform();
 	canvasTransformations.cameraToWorld = canvasTransformations.worldToCamera.inverse();
 
-	section.redrawIfNecessary();
+	if (forceRedraw) section.redraw(true);
+	else section.redraw();
 
 	context.drawImage(
 		section.canvas,

@@ -99,15 +99,15 @@ export function click(type: "reveal" | "flag" | "maybe") {
 		}
 
 		map.exploreTile(point.x, point.y);
-		section.redraw();
+		section.redraw(true);
 
 	} else if (type == "flag") {
 		map.toggleFlag(point.x, point.y);
-		section.redraw();
+		section.redraw(true);
 
 	} else if (type == "maybe") {
 		map.toggleMaybe(point.x, point.y);
-		section.redraw();
+		section.redraw(true);
 	}
 
 }

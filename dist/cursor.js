@@ -68,15 +68,15 @@ export function click(type) {
             map.option.autoclear = autoclearInitialState;
         }
         map.exploreTile(point.x, point.y);
-        section.redraw();
+        section.redraw(true);
     }
     else if (type == "flag") {
         map.toggleFlag(point.x, point.y);
-        section.redraw();
+        section.redraw(true);
     }
     else if (type == "maybe") {
         map.toggleMaybe(point.x, point.y);
-        section.redraw();
+        section.redraw(true);
     }
 }
 //# sourceMappingURL=cursor.js.map
